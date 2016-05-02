@@ -3,6 +3,7 @@
 //
 #include "VertexLayout.hpp"
 #include "ShaderProgram.hpp"
+#include "Error.hpp"
 
 namespace stock {
 
@@ -66,8 +67,8 @@ void VertexLayout::enable(const std::map<std::string, GLuint>& locations, size_t
 
         if (location != -1) {
             void* offset = ((unsigned char*) attrib.offset) + byteOffset;
-            glEnableVertexAttribArray(location);
-            glVertexAttribPointer(location, attrib.size, attrib.type, attrib.normalized, m_stride, offset);
+            CHECK_GL(glEnableVertexAttribArray(location));
+            CHECK_GL(glVertexAttribPointer(location, attrib.size, attrib.type, attrib.normalized, m_stride, offset));
         }
     }
 
@@ -90,12 +91,12 @@ void VertexLayout::enable(ShaderProgram& program, size_t byteOffset, void* ptr) 
             auto& loc = s_enabledAttribs[location];
             // Track currently enabled attributess by the program to which they are bound.
             if (loc != glProgram) {
-                glEnableVertexAttribArray(location);
+                CHECK_GL(glEnableVertexAttribArray(location));
                 loc = glProgram;
             }
 
             void* data = (unsigned char*)ptr + attrib.offset + byteOffset;
-            glVertexAttribPointer(location, attrib.size, attrib.type, attrib.normalized, m_stride, data);
+            CHECK_GL(glVertexAttribPointer(location, attrib.size, attrib.type, attrib.normalized, m_stride, data));
         }
     }
 
@@ -106,7 +107,7 @@ void VertexLayout::enable(ShaderProgram& program, size_t byteOffset, void* ptr) 
         GLuint& boundProgram = locationProgramPair.second;
 
         if (boundProgram != glProgram && boundProgram != 0) {
-            glDisableVertexAttribArray(location);
+            CHECK_GL(glDisableVertexAttribArray(location));
             boundProgram = 0;
         }
     }

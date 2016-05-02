@@ -4,6 +4,7 @@
 #include "ShaderProgram.hpp"
 #include "RenderState.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "Error.hpp"
 
 namespace stock {
 
@@ -20,15 +21,15 @@ ShaderProgram::ShaderProgram() {
 ShaderProgram::~ShaderProgram() {
 
     if (m_glProgram != 0) {
-        glDeleteProgram(m_glProgram);
+        CHECK_GL(glDeleteProgram(m_glProgram));
     }
 
     if (m_glFragmentShader != 0) {
-        glDeleteShader(m_glFragmentShader);
+        CHECK_GL(glDeleteShader(m_glFragmentShader));
     }
 
     if (m_glVertexShader != 0) {
-        glDeleteShader(m_glVertexShader);
+        CHECK_GL(glDeleteShader(m_glVertexShader));
     }
 
     // Deleting a shader program being used ends up setting up the current shader program to 0
@@ -52,6 +53,7 @@ GLint ShaderProgram::getAttribLocation(const std::string& _attribName) {
     if (it == m_attribMap.end()) {
         // If this is a new entry, get the actual location from OpenGL.
         GLint location = glGetAttribLocation(m_glProgram, _attribName.c_str());
+        CHECK_GL();
         m_attribMap[_attribName] = location;
         return location;
     } else {
@@ -67,6 +69,7 @@ GLint ShaderProgram::getUniformLocation(const UniformLocation& _uniform) {
 
     _uniform.generation = m_generation;
     _uniform.location = glGetUniformLocation(m_glProgram, _uniform.name.c_str());
+    CHECK_GL();
 
     return _uniform.location;
 }
@@ -105,7 +108,7 @@ bool ShaderProgram::build() {
     GLuint fragmentShader = makeCompiledShader(m_fragmentShaderSource, GL_FRAGMENT_SHADER);
 
     if (fragmentShader == 0) {
-        glDeleteShader(vertexShader);
+        CHECK_GL(glDeleteShader(vertexShader));
         return false;
     }
 
@@ -115,17 +118,17 @@ bool ShaderProgram::build() {
     GLuint program = makeLinkedShaderProgram(fragmentShader, vertexShader);
 
     if (program == 0) {
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
+        CHECK_GL(glDeleteShader(vertexShader));
+        CHECK_GL(glDeleteShader(fragmentShader));
         return false;
     }
 
     // Delete handles for old shaders and program;
     // values of 0 are silently ignored.
 
-    glDeleteShader(m_glFragmentShader);
-    glDeleteShader(m_glVertexShader);
-    glDeleteProgram(m_glProgram);
+    CHECK_GL(glDeleteShader(m_glFragmentShader));
+    CHECK_GL(glDeleteShader(m_glVertexShader));
+    CHECK_GL(glDeleteProgram(m_glProgram));
 
     m_glFragmentShader = fragmentShader;
     m_glVertexShader = vertexShader;
@@ -141,22 +144,22 @@ bool ShaderProgram::build() {
 GLuint ShaderProgram::makeLinkedShaderProgram(GLuint fragShader, GLuint vertShader) {
 
     GLuint program = glCreateProgram();
-    glAttachShader(program, fragShader);
-    glAttachShader(program, vertShader);
-    glLinkProgram(program);
+    CHECK_GL(glAttachShader(program, fragShader));
+    CHECK_GL(glAttachShader(program, vertShader));
+    CHECK_GL(glLinkProgram(program));
 
     GLint isLinked;
-    glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
+    CHECK_GL(glGetProgramiv(program, GL_LINK_STATUS, &isLinked));
 
     if (isLinked == GL_FALSE) {
         GLint infoLength = 0;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLength);
+        CHECK_GL(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLength));
         if (infoLength > 1) {
             std::vector<GLchar> infoLog(infoLength);
-            glGetProgramInfoLog(program, infoLength, NULL, &infoLog[0]);
-            // LOGE("linking program:\n%s", &infoLog[0]);
+            CHECK_GL(glGetProgramInfoLog(program, infoLength, NULL, &infoLog[0]));
+            Log::ef("Error linking program:\n%s", &infoLog[0]);
         }
-        glDeleteProgram(program);
+        CHECK_GL(glDeleteProgram(program));
         m_invalidShaderSource = true;
         return 0;
     }
@@ -167,7 +170,8 @@ GLuint ShaderProgram::makeLinkedShaderProgram(GLuint fragShader, GLuint vertShad
 GLuint ShaderProgram::makeCompiledShader(const std::string& _src, GLenum _type) {
 
     GLuint shader = glCreateShader(_type);
-    const GLchar* source = (const GLchar*) _src.c_str();
+    CHECK_GL();
+    const GLchar* source = _src.c_str();
     glShaderSource(shader, 1, &source, NULL);
     glCompileShader(shader);
 
@@ -180,8 +184,7 @@ GLuint ShaderProgram::makeCompiledShader(const std::string& _src, GLenum _type) 
         if (infoLength > 1) {
             std::vector<GLchar> infoLog(infoLength);
             glGetShaderInfoLog(shader, infoLength, NULL, &infoLog[0]);
-            // LOGE("Compiling shader:\n%s", &infoLog[0]);
-            //logMsg("\n%s\n", source);
+            Log::ef("Error compiling shader:\n%s", &infoLog[0]);
         }
         glDeleteShader(shader);
         m_invalidShaderSource = true;

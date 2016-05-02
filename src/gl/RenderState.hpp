@@ -4,6 +4,7 @@
 #pragma once
 
 #include "GL.hpp"
+#include "Error.hpp"
 #include <tuple>
 #include <limits>
 
@@ -56,9 +57,9 @@ struct BoolSwitch {
     using Type = GLboolean;
     inline static void set(const Type& _type) {
         if (_type) {
-            glEnable(N);
+            CHECK_GL(glEnable(N));
         } else {
-            glDisable(N);
+            CHECK_GL(glDisable(N));
         }
     }
 };
@@ -98,7 +99,7 @@ struct StateWrap {
 
     template<int ...S>
     inline void call(seq<S...>) {
-        fn(std::get<S>(params) ...);
+        CHECK_GL(fn(std::get<S>(params) ...));
     }
 };
 
