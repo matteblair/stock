@@ -27,6 +27,7 @@ public:
         size_t offset;
     };
 
+    VertexLayout() = default;
     VertexLayout(std::vector<VertexAttrib> attribs);
 
     void enable(ShaderProgram& program, size_t byteOffset, void* ptr = nullptr);
@@ -46,7 +47,7 @@ private:
     static std::map<GLint, GLuint> s_enabledAttribs; // Map from attrib locations to bound shader program
 
     std::vector<VertexAttrib> m_attribs;
-    size_t m_stride;
+    size_t m_stride = 0;
 
 };
 
