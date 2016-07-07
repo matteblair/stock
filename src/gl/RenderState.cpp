@@ -59,8 +59,8 @@ void configure() {
 
     CHECK_GL(glDisable(GL_STENCIL_TEST));
     CHECK_GL(glDepthFunc(GL_LEQUAL));
-    CHECK_GL(glClearDepthf(1.0));
-    CHECK_GL(glDepthRangef(0.0, 1.0));
+    // CHECK_GL(glClearDepthf(1.0));
+    // CHECK_GL(glDepthRangef(0.0, 1.0));
 
     static size_t max = std::numeric_limits<size_t>::max();
 

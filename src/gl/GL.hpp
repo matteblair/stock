@@ -3,20 +3,7 @@
 //
 #pragma once
 
-#if defined(PLATFORM_OSX) || defined(PLATFORM_LINUX)
-#define DESKTOP_GL true
-#else
-#define DESKTOP_GL false
-#endif
-
-#if defined(PLATFORM_ANDROID) || defined(PLATFORM_RPI)
-typedef long GLsizeiptr;
-typedef long GLintptr;
-#else
-#include <stddef.h>
-typedef ptrdiff_t GLsizeiptr;
-typedef ptrdiff_t GLintptr;
-#endif
+#include <cstddef>
 
 #ifdef PLATFORM_OSX
 #define glClearDepthf glClearDepth
@@ -24,17 +11,6 @@ typedef ptrdiff_t GLintptr;
 #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
 #define glGenVertexArrays glGenVertexArraysAPPLE
 #define glBindVertexArray glBindVertexArrayAPPLE
-#endif
-
-#if defined(PLATFORM_ANDROID) || defined(PLATFORM_IOS) || defined(PLATFORM_RPI)
-#define glMapBuffer glMapBufferOES
-#define glUnmapBuffer glUnmapBufferOES
-#endif
-
-#if defined(PLATFORM_IOS)
-#define glDeleteVertexArrays glDeleteVertexArraysOES
-#define glGenVertexArrays glGenVertexArraysOES
-#define glBindVertexArray glBindVertexArrayOES
 #endif
 
 /*
@@ -78,6 +54,8 @@ typedef float           GLclampf;   /*single precision float in [0,1] */
 typedef double          GLdouble;   /* double precision float */
 typedef double          GLclampd;   /* double precision float in [0,1] */
 typedef char            GLchar;
+typedef ptrdiff_t       GLsizeiptr;
+typedef ptrdiff_t       GLintptr;
 
 /* Utility */
 #define GL_VENDOR                       0x1F00
@@ -400,26 +378,9 @@ extern "C" {
     GL_APICALL void GL_APIENTRY glFinish(void);
 
     // VAO
-#ifdef PLATFORM_ANDROID
-    typedef void (GL_APIENTRYP PFNGLBINDVERTEXARRAYOESPROC) (GLuint array);
-    typedef void (GL_APIENTRYP PFNGLDELETEVERTEXARRAYSOESPROC) (GLsizei n, const GLuint *arrays);
-    typedef void (GL_APIENTRYP PFNGLGENVERTEXARRAYSOESPROC) (GLsizei n, GLuint *arrays);
-    typedef GLboolean (GL_APIENTRYP PFNGLISVERTEXARRAYOESPROC) (GLuint array);
-
-    // defined in platform_android.cpp
-    extern PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOESEXT;
-    extern PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOESEXT;
-    extern PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOESEXT;
-
-    #define glDeleteVertexArrays glDeleteVertexArraysOESEXT
-    #define glGenVertexArrays glGenVertexArraysOESEXT
-    #define glBindVertexArray glBindVertexArrayOESEXT
-
-#else
     GL_APICALL void GL_APIENTRY glBindVertexArray(GLuint array);
     GL_APICALL void GL_APIENTRY glDeleteVertexArrays(GLsizei n, const GLuint *arrays);
     GL_APICALL void GL_APIENTRY glGenVertexArrays(GLsizei n, GLuint *arrays);
-#endif
 
 };
 
