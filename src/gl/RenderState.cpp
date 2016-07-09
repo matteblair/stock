@@ -1,8 +1,8 @@
 //
 // Created by Matt Blair on 4/2/16.
 //
-#include "RenderState.hpp"
-#include "VertexLayout.hpp"
+#include "gl/RenderState.hpp"
+#include "gl/VertexLayout.hpp"
 
 namespace stock {
 

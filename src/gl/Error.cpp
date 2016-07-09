@@ -1,7 +1,7 @@
 //
 // Created by Matt Blair on 4/29/16.
 //
-#include "Error.hpp"
+#include "gl/Error.hpp"
 
 namespace stock {
 

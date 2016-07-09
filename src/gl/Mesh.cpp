@@ -1,9 +1,9 @@
 //
 // Created by Matt Blair on 5/26/16.
 //
-#include "Mesh.hpp"
-#include "ShaderProgram.hpp"
-#include "RenderState.hpp"
+#include "gl/Mesh.hpp"
+#include "gl/ShaderProgram.hpp"
+#include "gl/RenderState.hpp"
 
 #define MAX_INDEX_VALUE 65535 // Maximum value of GLushort
 

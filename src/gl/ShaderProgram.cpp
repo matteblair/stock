@@ -1,10 +1,10 @@
 //
 // Created by Matt Blair on 4/2/16.
 //
-#include "ShaderProgram.hpp"
-#include "RenderState.hpp"
+#include "gl/Error.hpp"
+#include "gl/RenderState.hpp"
+#include "gl/ShaderProgram.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "Error.hpp"
 
 namespace stock {
 

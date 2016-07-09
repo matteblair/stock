@@ -1,7 +1,7 @@
 //
 // Created by Matt Blair on 4/29/16.
 //
-#include "Log.hpp"
+#include "io/Log.hpp"
 
 namespace stock {
 

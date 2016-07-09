@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#include "GL.hpp"
-#include "Error.hpp"
+#include "gl/Error.hpp"
+#include "gl/GL.hpp"
 #include <tuple>
 #include <limits>
 

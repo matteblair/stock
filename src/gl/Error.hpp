@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "GL.hpp"
+#include "gl/GL.hpp"
 #include "io/Log.hpp"
 
 namespace stock {

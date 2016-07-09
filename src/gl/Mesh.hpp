@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#include "GL.hpp"
-#include "VertexLayout.hpp"
+#include "gl/GL.hpp"
+#include "gl/VertexLayout.hpp"
 #include <string>
 #include <vector>
 #include <memory>

@@ -1,9 +1,9 @@
 //
 // Created by Matt Blair on 4/2/16.
 //
-#include "VertexLayout.hpp"
-#include "ShaderProgram.hpp"
-#include "Error.hpp"
+#include "gl/ShaderProgram.hpp"
+#include "gl/VertexLayout.hpp"
+#include "gl/Error.hpp"
 
 namespace stock {
 

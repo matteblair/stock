@@ -3,8 +3,8 @@
 //
 #pragma once
 
-#include "GL.hpp"
-#include "ShaderUniform.hpp"
+#include "gl/GL.hpp"
+#include "gl/ShaderUniform.hpp"
 #include "glm/glm.hpp"
 #include <string>
 #include <vector>

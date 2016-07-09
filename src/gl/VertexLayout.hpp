@@ -2,7 +2,7 @@
 // Created by Matt Blair on 4/2/16.
 //
 #pragma once
-#include "GL.hpp"
+#include "gl/GL.hpp"
 #include <vector>
 #include <map>
 #include <memory>
