@@ -4,6 +4,8 @@
 #include "gl/ShaderProgram.hpp"
 #include "gl/Mesh.hpp"
 
+using namespace stock;
+
 const std::string vs_src = R"SHADER_END(
 attribute vec2 a_position;
 attribute vec4 a_color;
@@ -47,17 +49,17 @@ int main(void) {
 
     glClearColor(0.f, 0.f, 0.f, 1.f);
 
-    stock::ShaderProgram shader;
+    ShaderProgram shader;
     shader.setSourceStrings(fs_src, vs_src);
 
-    stock::VertexLayout vertexLayout(
+    VertexLayout vertexLayout(
         {
-            stock::VertexLayout::VertexAttrib{"a_position", 2, GL_FLOAT, false},
-            stock::VertexLayout::VertexAttrib{"a_color", 4, GL_UNSIGNED_BYTE, true},
+            VertexLayout::VertexAttrib{"a_position", 2, GL_FLOAT, false},
+            VertexLayout::VertexAttrib{"a_color", 4, GL_UNSIGNED_BYTE, true},
         }
     );
 
-    stock::Mesh<Vertex> mesh;
+    Mesh<Vertex> mesh;
     mesh.setVertexLayout(vertexLayout);
     mesh.vertices = {
         { 1.f, 0.f, 0xffff0000 },
@@ -65,10 +67,10 @@ int main(void) {
         { 0.f, 0.f, 0xff0000ff },
     };
 
-    stock::RenderState::configure();
-    stock::RenderState::depthTest(false);
+    RenderState::configure();
+    RenderState::depthTest(false);
 
-    stock::Log::setLevel(stock::Log::Level::verbose);
+    Log::setLevel(stock::Log::Level::verbose);
 
     // Loop until the user closes the window.
     while (!glfwWindowShouldClose(window)) {
