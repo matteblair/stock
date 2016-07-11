@@ -52,15 +52,13 @@ int main(void) {
     ShaderProgram shader;
     shader.setSourceStrings(fs_src, vs_src);
 
-    VertexLayout vertexLayout(
-        {
-            VertexLayout::VertexAttrib{"a_position", 2, GL_FLOAT, false},
-            VertexLayout::VertexAttrib{"a_color", 4, GL_UNSIGNED_BYTE, true},
-        }
-    );
-
     Mesh<Vertex> mesh;
-    mesh.setVertexLayout(vertexLayout);
+    mesh.setVertexLayout(VertexLayout(
+        {
+            VertexAttribute("a_position", 2, GL_FLOAT, false),
+            VertexAttribute("a_color", 4, GL_UNSIGNED_BYTE, true),
+        }
+    ));
     mesh.vertices = {
         { 1.f, 0.f, 0xffff0000 },
         { .5f, 1.f, 0xff00ff00 },
@@ -68,7 +66,6 @@ int main(void) {
     };
 
     RenderState::configure();
-    RenderState::depthTest(false);
 
     Log::setLevel(stock::Log::Level::verbose);
 

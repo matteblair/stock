@@ -7,103 +7,68 @@
 
 namespace stock {
 
-std::map<GLint, GLuint> VertexLayout::s_enabledAttribs;
+std::map<GLuint, GLuint> VertexLayout::s_enabledAttributes;
 
-VertexLayout::VertexLayout(std::vector<VertexAttrib> attribs) : m_attribs(attribs) {
+VertexLayout::VertexLayout(std::vector<VertexAttribute> attributes) : m_attributes(attributes) {
 
-    m_stride = 0;
-
-    for (auto& attrib : m_attribs) {
-
-        // Set the offset of this vertex attribute: The stride at this point
-        // denotes the number of bytes into the vertex by which this attribute
-        // is offset, but we must cast the number as a void* to use with
-        // glVertexAttribPointer; We use reinterpret_cast to avoid warnings.
-        attrib.offset = m_stride;
-
-        GLint byteSize = attrib.size;
-
-        switch (attrib.type) {
+    for (auto& a : m_attributes) {
+        a.offset = m_stride;
+        GLint bytes = a.size;
+        switch (a.type) {
             case GL_FLOAT:
             case GL_INT:
             case GL_UNSIGNED_INT:
-                byteSize *= 4; // 4 bytes for floats, ints, and uints
+                bytes *= 4; // 4 bytes for floats, ints, and uints
                 break;
             case GL_SHORT:
             case GL_UNSIGNED_SHORT:
-                byteSize *= 2; // 2 bytes for shorts and ushorts
+                bytes *= 2; // 2 bytes for shorts and ushorts
                 break;
             default:
                 break;
         }
-
-        m_stride += byteSize;
-
+        m_stride += bytes;
     }
+
 }
 
-size_t VertexLayout::getOffset(const std::string& attribName) {
+size_t VertexLayout::getOffset(const std::string& attributeName) const {
 
-    for (auto& attrib : m_attribs) {
-        if (attrib.name == attribName) {
-            return attrib.offset;
+    for (const auto& a : m_attributes) {
+        if (a.name == attributeName) {
+            return a.offset;
         }
     }
 
-    // LOGE("No such attribute %s", attribName.c_str());
     return 0;
 }
 
-void VertexLayout::enable(const std::map<std::string, GLuint>& locations, size_t byteOffset) {
-
-    for (auto& attrib : m_attribs) {
-        auto it = locations.find(attrib.name);
-
-        if (it == locations.end()) {
-            continue;
-        }
-
-        GLint location = it->second;;
-
-        if (location != -1) {
-            void* offset = ((unsigned char*) attrib.offset) + byteOffset;
-            CHECK_GL(glEnableVertexAttribArray(location));
-            CHECK_GL(glVertexAttribPointer(location, attrib.size, attrib.type, attrib.normalized, m_stride, offset));
-        }
-    }
-
-}
-
-void VertexLayout::clearCache() {
-    s_enabledAttribs.clear();
-}
-
-void VertexLayout::enable(ShaderProgram& program, size_t byteOffset, void* ptr) {
+void VertexLayout::enable(ShaderProgram& program, size_t offset) {
 
     GLuint glProgram = program.getGlProgram();
 
     // Enable all attributes for this layout.
-    for (auto& attrib : m_attribs) {
+    for (auto& a : m_attributes) {
 
-        GLint location = program.getAttribLocation(attrib.name);
+        GLint location = program.getAttribLocation(a.name);
 
-        if (location != -1) {
-            auto& loc = s_enabledAttribs[location];
-            // Track currently enabled attributess by the program to which they are bound.
-            if (loc != glProgram) {
+        if (location >= 0) {
+            GLuint& boundProgram = s_enabledAttributes[location];
+            // Track currently enabled attributes by the program to which they are bound.
+            if (boundProgram != glProgram) {
                 CHECK_GL(glEnableVertexAttribArray(location));
-                loc = glProgram;
+                boundProgram = glProgram;
             }
 
-            void* data = (unsigned char*)ptr + attrib.offset + byteOffset;
-            CHECK_GL(glVertexAttribPointer(location, attrib.size, attrib.type, attrib.normalized, m_stride, data));
+            void* data = reinterpret_cast<void*>(a.offset + offset);
+            CHECK_GL(glVertexAttribPointer(location, a.size, a.type, a.normalized, m_stride, data));
         }
     }
 
     // Disable previously bound and now-unneeded attributes
-    for (auto& locationProgramPair : s_enabledAttribs) {
+    for (auto& locationProgramPair : s_enabledAttributes) {
 
-        const GLint& location = locationProgramPair.first;
+        const GLuint& location = locationProgramPair.first;
         GLuint& boundProgram = locationProgramPair.second;
 
         if (boundProgram != glProgram && boundProgram != 0) {
@@ -111,6 +76,10 @@ void VertexLayout::enable(ShaderProgram& program, size_t byteOffset, void* ptr) 
             boundProgram = 0;
         }
     }
+}
+
+void VertexLayout::clearCache() {
+    s_enabledAttributes.clear();
 }
 
 } // namespace stock

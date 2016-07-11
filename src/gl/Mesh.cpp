@@ -9,7 +9,7 @@
 
 namespace stock {
 
-MeshBase::MeshBase() {
+MeshBase::MeshBase() : m_vertexLayout({}) {
 }
 
 MeshBase::~MeshBase() {
@@ -98,7 +98,7 @@ bool MeshBase::draw(ShaderProgram& shader) {
     }
 
     // Enable vertex layout.
-    m_vertexLayout.enable(shader, 0);
+    m_vertexLayout.enable(shader);
 
     // Draw as elements or arrays.
     if (m_indexCount > 0) {
