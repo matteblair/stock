@@ -65,7 +65,8 @@ int main(void) {
         { 0.f, 0.f, 0xff0000ff },
     };
 
-    RenderState::configure();
+    RenderState rs;
+    rs.configure();
 
     Log::setLevel(stock::Log::Level::verbose);
 
@@ -74,7 +75,7 @@ int main(void) {
         // Render here.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        mesh.draw(shader);
+        mesh.draw(rs, shader);
 
         // Swap front and back buffers.
         glfwSwapBuffers(window);
@@ -82,6 +83,9 @@ int main(void) {
         // Poll for and process events.
         glfwPollEvents();
     }
+
+    shader.dispose(rs);
+    mesh.dispose(rs);
 
     glfwTerminate();
     return 0;

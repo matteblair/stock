@@ -12,6 +12,8 @@
 
 namespace stock {
 
+class RenderState;
+
 class ShaderProgram {
 
 public:
@@ -25,7 +27,10 @@ public:
     // Attempts to compile and link the vertex and fragment shaders; if
     // compiling or linking fails it prints the compiler log, returns false, and
     // keeps the program's previous state; if successful it returns true.
-    bool build();
+    bool build(RenderState& rs);
+
+    // Disposes the GL resources for this shader.
+    void dispose(RenderState& rs);
 
     GLuint getGlProgram() const { return m_glProgram; };
     GLuint getGlFragmentShader() const { return m_glFragmentShader; };
@@ -43,32 +48,30 @@ public:
     // Bind the program in openGL if it is not already bound; If the shader sources
     // have been modified since the last time build() was called, also calls build().
     // Returns true if shader can be used (i.e. is valid).
-    bool use();
+    bool use(RenderState& rs);
 
     // Ensure the program is bound and then set the named uniform to the given value(s).
-    void setUniformi(const UniformLocation& loc, int value);
-    void setUniformi(const UniformLocation& loc, int value0, int value1);
-    void setUniformi(const UniformLocation& loc, int value0, int value1, int value2);
-    void setUniformi(const UniformLocation& loc, int value0, int value1, int value2, int value3);
+    void setUniformi(RenderState& rs, const UniformLocation& loc, int value);
+    void setUniformi(RenderState& rs, const UniformLocation& loc, int value0, int value1);
+    void setUniformi(RenderState& rs, const UniformLocation& loc, int value0, int value1, int value2);
+    void setUniformi(RenderState& rs, const UniformLocation& loc, int value0, int value1, int value2, int value3);
 
-    void setUniformf(const UniformLocation& loc, float value);
-    void setUniformf(const UniformLocation& loc, float value0, float value1);
-    void setUniformf(const UniformLocation& loc, float value0, float value1, float value2);
-    void setUniformf(const UniformLocation& loc, float value0, float value1, float value2, float value3);
+    void setUniformf(RenderState& rs, const UniformLocation& loc, float value);
+    void setUniformf(RenderState& rs, const UniformLocation& loc, float value0, float value1);
+    void setUniformf(RenderState& rs, const UniformLocation& loc, float value0, float value1, float value2);
+    void setUniformf(RenderState& rs, const UniformLocation& loc, float value0, float value1, float value2, float value3);
 
-    void setUniformf(const UniformLocation& loc, const glm::vec2& value);
-    void setUniformf(const UniformLocation& loc, const glm::vec3& value);
-    void setUniformf(const UniformLocation& loc, const glm::vec4& value);
+    void setUniformf(RenderState& rs, const UniformLocation& loc, const glm::vec2& value);
+    void setUniformf(RenderState& rs, const UniformLocation& loc, const glm::vec3& value);
+    void setUniformf(RenderState& rs, const UniformLocation& loc, const glm::vec4& value);
 
     // Ensures the program is bound and then sets the named uniform to the values
     // beginning at the pointer _value; 4 values are used for a 2x2 matrix, 9 values for a 3x3, etc.
-    void setUniformMatrix2f(const UniformLocation& loc, const glm::mat2& value, bool transpose = false);
-    void setUniformMatrix3f(const UniformLocation& loc, const glm::mat3& value, bool transpose = false);
-    void setUniformMatrix4f(const UniformLocation& loc, const glm::mat4& value, bool transpose = false);
+    void setUniformMatrix2f(RenderState& rs, const UniformLocation& loc, const glm::mat2& value, bool transpose = false);
+    void setUniformMatrix3f(RenderState& rs, const UniformLocation& loc, const glm::mat3& value, bool transpose = false);
+    void setUniformMatrix4f(RenderState& rs, const UniformLocation& loc, const glm::mat4& value, bool transpose = false);
 
 private:
-
-    static int s_validGeneration; // Incremented when GL context is invalidated
 
     int32_t m_generation = -1;
     GLuint m_glProgram = 0;
@@ -83,7 +86,7 @@ private:
     bool m_needsBuild = true;
     bool m_invalidShaderSource = false;
 
-    void checkValidity();
+    void checkValidity(RenderState& renderState);
     GLuint makeLinkedShaderProgram(GLuint fragShader, GLuint vertShader);
     GLuint makeCompiledShader(const std::string& src, GLenum type);
 

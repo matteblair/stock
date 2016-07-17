@@ -11,6 +11,8 @@
 
 namespace stock {
 
+class RenderState;
+
 // Mesh is a drawable collection of geometry contained in a vertex buffer and
 // (optionally) an index buffer.
 
@@ -31,21 +33,21 @@ public:
 
     // Copy all added vertices and indices into OpenGL buffer objects; After
     // geometry is uploaded, no more vertices or indices can be added.
-    virtual void upload();
+    virtual void upload(RenderState& rs);
 
     // Release all OpenGL resources for this Mesh.
-    void dispose();
+    void dispose(RenderState& rs);
 
     // Render the geometry in this mesh using the ShaderProgram _shader; if
     // geometry has not already been uploaded it will be uploaded at this point.
-    bool draw(ShaderProgram& _shader);
+    bool draw(RenderState& rs, ShaderProgram& shader);
 
     // Get the total size of VRAM in bytes used by this Mesh.
     size_t getTotalBufferSize() const;
 
 protected:
 
-    bool checkValidity();
+    bool checkValidity(RenderState& rs);
 
     VertexLayout m_vertexLayout;
 
@@ -77,7 +79,7 @@ public:
     std::vector<uint16_t> indices;
     bool retainData = false;
 
-    virtual void upload();
+    virtual void upload(RenderState& rs);
     void reset();
 };
 
@@ -89,12 +91,12 @@ void Mesh<T>::reset() {
 }
 
 template<class T>
-void Mesh<T>::upload() {
+void Mesh<T>::upload(RenderState& rs) {
     m_glVertexData = reinterpret_cast<GLbyte*>(vertices.data());
     m_vertexCount = vertices.size();
     m_glIndexData = indices.data();
     m_indexCount = indices.size();
-    MeshBase::upload();
+    MeshBase::upload(rs);
     if (!retainData) {
         vertices.clear();
         indices.clear();

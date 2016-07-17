@@ -15,20 +15,20 @@ MeshBase::MeshBase() : m_vertexLayout({}) {
 MeshBase::~MeshBase() {
 }
 
-void MeshBase::dispose() {
+void MeshBase::dispose(RenderState& rs) {
 
     // Deleting a index/array buffer being used ends up setting up the current vertex/index buffer to 0
     // after the driver finishes using it, so force the render state to be 0 for vertex/index buffer.
 
     if (m_glVertexBuffer) {
-        if (RenderState::vertexBuffer.compare(m_glVertexBuffer)) {
-            RenderState::vertexBuffer.init(0, false);
+        if (rs.vertexBuffer.compare(m_glVertexBuffer)) {
+            rs.vertexBuffer.init(0, false);
         }
         CHECK_GL(glDeleteBuffers(1, &m_glVertexBuffer));
     }
     if (m_glIndexBuffer) {
-        if (RenderState::indexBuffer.compare(m_glIndexBuffer)) {
-            RenderState::indexBuffer.init(0, false);
+        if (rs.indexBuffer.compare(m_glIndexBuffer)) {
+            rs.indexBuffer.init(0, false);
         }
         CHECK_GL(glDeleteBuffers(1, &m_glIndexBuffer));
     }
@@ -42,7 +42,7 @@ void MeshBase::setDrawMode(GLenum drawMode) {
     m_drawMode = drawMode;
 }
 
-void MeshBase::upload() {
+void MeshBase::upload(RenderState& rs) {
 
     if (m_glVertexData && m_vertexCount > 0) {
 
@@ -52,7 +52,7 @@ void MeshBase::upload() {
         }
 
         // Buffer vertex data.
-        RenderState::vertexBuffer(m_glVertexBuffer);
+        rs.vertexBuffer(m_glVertexBuffer);
         size_t vertexBytes = m_vertexCount * m_vertexLayout.stride();
         CHECK_GL(glBufferData(GL_ARRAY_BUFFER, vertexBytes, m_glVertexData, m_hint));
 
@@ -66,35 +66,35 @@ void MeshBase::upload() {
         }
 
         // Buffer index data.
-        RenderState::indexBuffer(m_glIndexBuffer);
+        rs.indexBuffer(m_glIndexBuffer);
         size_t indexBytes = m_indexCount * sizeof(GLushort);
         CHECK_GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBytes, m_glIndexData, m_hint));
 
     }
 
-    m_generation = RenderState::generation();
+    m_generation = rs.generation();
 
     m_isUploaded = true;
 }
 
-bool MeshBase::draw(ShaderProgram& shader) {
+bool MeshBase::draw(RenderState& rs, ShaderProgram& shader) {
 
-    checkValidity();
+    checkValidity(rs);
 
     // Ensure that geometry is buffered into GPU.
-    if (!m_isUploaded) { upload(); }
+    if (!m_isUploaded) { upload(rs); }
 
     // Exit early for empty meshes.
     if (m_vertexCount == 0) { return false; }
 
     // Enable the shader program.
-    if (!shader.use()) { return false; }
+    if (!shader.use(rs)) { return false; }
 
     // Bind buffers for drawing.
-    RenderState::vertexBuffer(m_glVertexBuffer);
+    rs.vertexBuffer(m_glVertexBuffer);
 
     if (m_indexCount > 0) {
-        RenderState::indexBuffer(m_glIndexBuffer);
+        rs.indexBuffer(m_glIndexBuffer);
     }
 
     // Enable vertex layout.
@@ -110,13 +110,13 @@ bool MeshBase::draw(ShaderProgram& shader) {
     return true;
 }
 
-bool MeshBase::checkValidity() {
+bool MeshBase::checkValidity(RenderState& rs) {
 
-    if (!RenderState::isValidGeneration(m_generation)) {
+    if (!rs.isValidGeneration(m_generation)) {
         m_isUploaded = false;
         m_glVertexBuffer = 0;
         m_glIndexBuffer = 0;
-        m_generation = RenderState::generation();
+        m_generation = rs.generation();
         return false;
     }
 

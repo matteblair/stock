@@ -6,47 +6,29 @@
 
 namespace stock {
 
-// Incremented when the GL context is invalidated
-static int s_validGeneration;
-static int s_textureUnit;
-
-namespace RenderState {
-
-Blending blending;
-DepthTest depthTest;
-StencilTest stencilTest;
-Culling culling;
-DepthWrite depthWrite;
-BlendingFunc blendingFunc;
-StencilWrite stencilWrite;
-StencilFunc stencilFunc;
-StencilOp stencilOp;
-ColorWrite colorWrite;
-FrontFace frontFace;
-CullFace cullFace;
-
-VertexBuffer vertexBuffer;
-IndexBuffer indexBuffer;
-
-ShaderProgram shaderProgram;
-
-TextureUnit textureUnit;
-Texture texture;
-
-ClearColor clearColor;
-
-GLuint getTextureUnit(GLuint _unit) {
+GLuint RenderState::getTextureUnit(GLuint _unit) {
     return GL_TEXTURE0 + _unit;
 }
 
-void bindVertexBuffer(GLuint _id) { CHECK_GL(glBindBuffer(GL_ARRAY_BUFFER, _id)); }
-void bindIndexBuffer(GLuint _id) { CHECK_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id)); }
-void activeTextureUnit(GLuint _unit) { CHECK_GL(glActiveTexture(getTextureUnit(_unit))); }
-void bindTexture(GLenum _target, GLuint _textureId) { CHECK_GL(glBindTexture(_target, _textureId)); }
+void RenderState::bindVertexBuffer(GLuint _id) {
+    CHECK_GL(glBindBuffer(GL_ARRAY_BUFFER, _id));
+}
 
-void configure() {
-    s_textureUnit = -1;
-    s_validGeneration++;
+void RenderState::bindIndexBuffer(GLuint _id) {
+    CHECK_GL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _id));
+}
+
+void RenderState::activeTextureUnit(GLuint _unit) {
+    CHECK_GL(glActiveTexture(getTextureUnit(_unit)));
+}
+
+void RenderState::bindTexture(GLenum _target, GLuint _textureId) {
+    CHECK_GL(glBindTexture(_target, _textureId));
+}
+
+void RenderState::configure() {
+    m_textureUnit = -1;
+    m_validGeneration++;
     VertexLayout::clearCache();
 
     blending.init(GL_FALSE);
@@ -73,31 +55,30 @@ void configure() {
     textureUnit.init(max, false);
 }
 
-bool isValidGeneration(int _generation) {
-    return _generation == s_validGeneration;
+bool RenderState::isValidGeneration(int _generation) {
+    return _generation == m_validGeneration;
 }
 
-int generation() {
-    return s_validGeneration;
+int RenderState::generation() {
+    return m_validGeneration;
 }
 
-int nextAvailableTextureUnit() {
+int RenderState::nextAvailableTextureUnit() {
     // TODO: Check if texture unit count exceeds GL_MAX_COMBINED_TEXTURE_UNITS
     // if (s_textureUnit + 1 > Hardware::maxCombinedTextureUnits) {
     //     LOGE("Too many combined texture units are being used");
     //     LOGE("GPU supports %d combined texture units", Hardware::maxCombinedTextureUnits);
     // }
 
-    return ++s_textureUnit;
+    return ++m_textureUnit;
 }
 
-int currentTextureUnit() {
-    return s_textureUnit;
+int RenderState::currentTextureUnit() {
+    return m_textureUnit;
 }
 
-void resetTextureUnit() {
-    s_textureUnit = -1;
-}
+void RenderState::resetTextureUnit() {
+    m_textureUnit = -1;
 }
 
 } // namespace stock
