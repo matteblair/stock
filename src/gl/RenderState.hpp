@@ -7,6 +7,7 @@
 #include "gl/GL.hpp"
 #include <tuple>
 #include <limits>
+#include <array>
 
 namespace stock {
 
@@ -35,6 +36,9 @@ public:
     int nextAvailableTextureUnit();
     // Reset the currently used texture unit.
     void resetTextureUnit();
+
+    // For each vertex attribute location, contains the GL program last used to bind the attribute or zero if unbound.
+    std::array<GLuint, 16> attributeBindings = { 0 };
 
     template <typename T>
     class State {

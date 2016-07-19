@@ -1,13 +1,12 @@
 //
 // Created by Matt Blair on 4/2/16.
 //
+#include "gl/Error.hpp"
+#include "gl/RenderState.hpp"
 #include "gl/ShaderProgram.hpp"
 #include "gl/VertexLayout.hpp"
-#include "gl/Error.hpp"
 
 namespace stock {
-
-std::map<GLuint, GLuint> VertexLayout::s_enabledAttributes;
 
 VertexLayout::VertexLayout(std::vector<VertexAttribute> attributes) : m_attributes(attributes) {
 
@@ -43,17 +42,19 @@ size_t VertexLayout::getOffset(const std::string& attributeName) const {
     return 0;
 }
 
-void VertexLayout::enable(ShaderProgram& program, size_t offset) {
+void VertexLayout::enable(RenderState& rs, ShaderProgram& program, size_t offset) {
 
     GLuint glProgram = program.getGlProgram();
+    size_t maxVertexAttributes = rs.attributeBindings.size();
 
     // Enable all attributes for this layout.
     for (auto& a : m_attributes) {
 
         GLint location = program.getAttribLocation(a.name);
+        assert(location < maxVertexAttributes);
 
         if (location >= 0) {
-            GLuint& boundProgram = s_enabledAttributes[location];
+            GLuint& boundProgram = rs.attributeBindings[location];
             // Track currently enabled attributes by the program to which they are bound.
             if (boundProgram != glProgram) {
                 CHECK_GL(glEnableVertexAttribArray(location));
@@ -66,20 +67,15 @@ void VertexLayout::enable(ShaderProgram& program, size_t offset) {
     }
 
     // Disable previously bound and now-unneeded attributes
-    for (auto& locationProgramPair : s_enabledAttributes) {
+    for (GLuint location = 0; location < maxVertexAttributes; ++location) {
 
-        const GLuint& location = locationProgramPair.first;
-        GLuint& boundProgram = locationProgramPair.second;
+        GLuint& boundProgram = rs.attributeBindings[location];
 
         if (boundProgram != glProgram && boundProgram != 0) {
             CHECK_GL(glDisableVertexAttribArray(location));
             boundProgram = 0;
         }
     }
-}
-
-void VertexLayout::clearCache() {
-    s_enabledAttributes.clear();
 }
 
 } // namespace stock

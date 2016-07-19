@@ -98,7 +98,7 @@ bool MeshBase::draw(RenderState& rs, ShaderProgram& shader) {
     }
 
     // Enable vertex layout.
-    m_vertexLayout.enable(shader);
+    m_vertexLayout.enable(rs, shader);
 
     // Draw as elements or arrays.
     if (m_indexCount > 0) {

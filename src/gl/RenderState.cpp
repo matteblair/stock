@@ -29,7 +29,7 @@ void RenderState::bindTexture(GLenum _target, GLuint _textureId) {
 void RenderState::configure() {
     m_textureUnit = -1;
     m_validGeneration++;
-    VertexLayout::clearCache();
+    attributeBindings = { 0 };
 
     blending.init(GL_FALSE);
     blendingFunc.init(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
