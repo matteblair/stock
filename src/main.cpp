@@ -1,8 +1,8 @@
 #define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
-#include <gl/RenderState.hpp>
-#include "gl/ShaderProgram.hpp"
 #include "gl/Mesh.hpp"
+#include "gl/RenderState.hpp"
+#include "gl/ShaderProgram.hpp"
 
 using namespace stock;
 
@@ -47,8 +47,6 @@ int main(void) {
     // Make the window's context current.
     glfwMakeContextCurrent(window);
 
-    glClearColor(0.f, 0.f, 0.f, 1.f);
-
     ShaderProgram shader;
     shader.setSourceStrings(fs_src, vs_src);
 
@@ -67,6 +65,7 @@ int main(void) {
 
     RenderState rs;
     rs.configure();
+    rs.clearColor(0.f, 0.f, 0.f, 1.f);
 
     Log::setLevel(stock::Log::Level::verbose);
 

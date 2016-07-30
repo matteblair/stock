@@ -21,15 +21,11 @@ void MeshBase::dispose(RenderState& rs) {
     // after the driver finishes using it, so force the render state to be 0 for vertex/index buffer.
 
     if (m_glVertexBuffer) {
-        if (rs.vertexBuffer.compare(m_glVertexBuffer)) {
-            rs.vertexBuffer.init(0, false);
-        }
+        rs.vertexBufferUnset(m_glVertexBuffer);
         CHECK_GL(glDeleteBuffers(1, &m_glVertexBuffer));
     }
     if (m_glIndexBuffer) {
-        if (rs.indexBuffer.compare(m_glIndexBuffer)) {
-            rs.indexBuffer.init(0, false);
-        }
+        rs.indexBufferUnset(m_glIndexBuffer);
         CHECK_GL(glDeleteBuffers(1, &m_glIndexBuffer));
     }
 }

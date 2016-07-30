@@ -27,11 +27,7 @@ void ShaderProgram::dispose(RenderState& rs) {
         CHECK_GL(glDeleteShader(m_glVertexShader));
     }
 
-    // Deleting a shader program being used ends up setting up the current shader program to 0
-    // after the driver finishes using it, force this setup by setting the current program
-    if (rs.shaderProgram.compare(m_glProgram)) {
-        rs.shaderProgram.init(0, false);
-    }
+    rs.shaderProgramUnset(m_glProgram);
 }
 
 void ShaderProgram::setSourceStrings(const std::string& _fragSrc, const std::string& _vertSrc){

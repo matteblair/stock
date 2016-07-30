@@ -5,7 +5,7 @@
 
 #include <cstddef>
 
-#ifdef PLATFORM_OSX
+#ifdef __APPLE__
 #define glClearDepthf glClearDepth
 #define glDepthRangef glDepthRange
 #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
@@ -272,7 +272,7 @@ extern "C" {
     GL_APICALL void GL_APIENTRY glDisable(GLenum);
     GL_APICALL void GL_APIENTRY glDepthFunc(GLenum func);
     GL_APICALL void GL_APIENTRY glDepthMask(GLboolean flag);
-#ifdef PLATFORM_OSX
+#ifdef __APPLE__
     GL_APICALL void GL_APIENTRY glDepthRange(GLclampd n, GLclampd f);
     GL_APICALL void GL_APIENTRY glClearDepth(GLclampd d);
 #else
