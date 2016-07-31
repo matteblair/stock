@@ -12,12 +12,12 @@ set(SOURCE_FILES
         src/main.cpp
         src/gl/VertexLayout.cpp
         src/gl/ShaderProgram.cpp
-        src/gl/ShaderProgram.hpp
         src/gl/RenderState.cpp
         src/gl/ShaderUniform.cpp
         src/gl/Error.cpp
         src/io/Log.cpp
         src/gl/Mesh.cpp
+        src/gl/Texture.cpp
         )
 
 add_executable(stock ${SOURCE_FILES})
