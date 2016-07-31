@@ -18,6 +18,7 @@ set(SOURCE_FILES
         src/io/Log.cpp
         src/gl/Mesh.cpp
         src/gl/Texture.cpp
+        src/io/File.cpp
         )
 
 add_executable(stock ${SOURCE_FILES})
