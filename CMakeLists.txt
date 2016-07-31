@@ -9,16 +9,16 @@ include(deps/deps.cmake)
 include_directories(src ${STOCK_INCLUDE_DIRS})
 
 set(SOURCE_FILES
-        src/main.cpp
-        src/gl/VertexLayout.cpp
-        src/gl/ShaderProgram.cpp
-        src/gl/RenderState.cpp
-        src/gl/ShaderUniform.cpp
         src/gl/Error.cpp
-        src/io/Log.cpp
         src/gl/Mesh.cpp
+        src/gl/RenderState.cpp
+        src/gl/ShaderProgram.cpp
+        src/gl/ShaderUniform.cpp
         src/gl/Texture.cpp
+        src/gl/VertexLayout.cpp
         src/io/File.cpp
+        src/io/Log.cpp
+        src/main.cpp
         )
 
 add_executable(stock ${SOURCE_FILES})
