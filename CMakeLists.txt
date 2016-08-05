@@ -18,6 +18,7 @@ set(SOURCE_FILES
         src/gl/VertexLayout.cpp
         src/io/File.cpp
         src/io/Log.cpp
+        src/view/Camera.cpp
         src/main.cpp
         )
 
