@@ -16,22 +16,43 @@ class Camera {
 public:
 
     enum class Type : uint8_t {
-        perspective,
-        orthographic,
+        PERSPECTIVE,
+        ORTHOGRAPHIC,
     };
 
     Camera();
 
-    const glm::vec3& position();
-    const glm::vec3& upVector();
-    const glm::vec3& direction();
+    float width() const;
+    void setWidth(float width);
 
+    float height() const;
+    void setHeight(float height);
+
+    float fieldOfView() const;
+    void setFieldOfView(float fov);
+
+    Type projectionType() const;
+    void setProjectionType(Type type);
+
+    float nearDepth() const;
+    void setNearDepth(float near);
+
+    float farDepth() const;
+    void setFarDepth(float far);
+
+    const glm::mat4& viewProjectionMatrix() const;
+
+    const glm::mat3& normalMatrix() const;
+
+    const glm::vec3& position() const;
     void setPosition(const glm::vec3& position);
     void setPosition(float x, float y, float z);
 
+    const glm::vec3& upVector() const;
     void setUpVector(const glm::vec3& up);
     void setUpVector(float x, float y, float z);
 
+    const glm::vec3& direction() const;
     void setDirection(const glm::vec3& direction);
     void setDirection(float x, float y, float z);
 
@@ -60,12 +81,14 @@ private:
     glm::mat3 m_normalMatrix;
     glm::mat3 m_invNormalMatrix;
     glm::vec3 m_position;
-    glm::vec3 m_up = { 0.f, 1.f, 0.f };
-    glm::vec3 m_direction { 0.f, 0.f, 1.f };
+    glm::vec3 m_up = { 0.f, 0.f, 1.f };
+    glm::vec3 m_direction { 0.f, 1.f, 0.f };
     float m_width = 1.f;
     float m_height = 1.f;
     float m_fov = 1.5708f;
-    Type m_type = Type::perspective;
+    float m_near = 0.1f;
+    float m_far = 1000.f;
+    Type m_type = Type::PERSPECTIVE;
     bool m_dirty = true;
 
 };
