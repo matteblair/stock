@@ -11,7 +11,7 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
 set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
 
 add_subdirectory(${STOCK_DEPS_DIR}/glfw)
-target_compile_options(glfw PRIVATE -O3)
+target_compile_options(glfw PRIVATE -O3 -Wno-deprecated)
 target_compile_definitions(glfw PRIVATE NDEBUG)
 list(APPEND STOCK_INCLUDE_DIRS ${STOCK_DEPS_DIR}/glfw/include)
 list(APPEND STOCK_LIBRARIES glfw)
