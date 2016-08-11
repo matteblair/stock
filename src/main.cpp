@@ -1,4 +1,3 @@
-#define GLFW_INCLUDE_GLCOREARB
 #include <GLFW/glfw3.h>
 #include "gl/Mesh.hpp"
 #include "gl/RenderState.hpp"

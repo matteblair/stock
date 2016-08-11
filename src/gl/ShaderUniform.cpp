@@ -2,6 +2,7 @@
 // Created by Matt Blair on 4/26/16.
 //
 #include "ShaderUniform.hpp"
+#include <string.h> // For memcmp and memcpy.
 
 namespace stock {
 
