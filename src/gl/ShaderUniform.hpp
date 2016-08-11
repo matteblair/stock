@@ -25,16 +25,23 @@ private:
 class ShaderUniform {
 
 public:
-    ShaderUniform(int value);
-    ShaderUniform(float value);
-    ShaderUniform(int* array, size_t count);
-    ShaderUniform(float* array, size_t count);
 
+    ShaderUniform();
     ~ShaderUniform();
 
-    size_t count();
+    ShaderUniform(const ShaderUniform& other);
+    ShaderUniform(ShaderUniform&& other);
 
-    bool equals(const ShaderUniform& _other);
+    // Update the uniform to store the given value; returns 'true' if the new
+    // value is different from the old value.
+    bool update(int value);
+    bool update(float value);
+    bool update(int* array, size_t count);
+    bool update(float* array, size_t count);
+
+    // If the uniform is an array, returns the number of elements; otherwise
+    // returns zero.
+    size_t count();
 
 private:
     enum class ValueType : uint8_t {
@@ -47,11 +54,17 @@ private:
     union {
         int m_scalarInt = 0;
         float m_scalarFloat;
-        std::vector<int> m_vectorInt;
-        std::vector<float> m_vectorFloat;
+        int* m_arrayInt;
+        float* m_arrayFloat;
     };
 
+    size_t m_count = 0;
+
     ValueType m_type = ValueType::SCALAR_INT;
+
+    void deleteArrays();
+
+    size_t arrayByteCount();
 
     friend class ShaderProgram;
 };
