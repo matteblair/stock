@@ -1,4 +1,5 @@
 #include <GLFW/glfw3.h>
+#include "gl/Error.hpp"
 #include "gl/Mesh.hpp"
 #include "gl/RenderState.hpp"
 #include "gl/ShaderProgram.hpp"
@@ -71,7 +72,7 @@ int main(void) {
     // Loop until the user closes the window.
     while (!glfwWindowShouldClose(window)) {
         // Render here.
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        CHECK_GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
         mesh.draw(rs, shader);
 
