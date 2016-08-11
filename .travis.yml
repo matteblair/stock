@@ -1,0 +1,17 @@
+language: cpp
+compiler: clang
+sudo: false
+addons:
+  apt:
+    sources:
+      - kubuntu-backports
+    packages:
+      - cmake
+      - ninja-build
+before_script:
+  - git submodule update --init
+script:
+  - mkdir build
+  - cd build
+  - cmake .. -GNinja
+  - cmake --build .

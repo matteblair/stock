@@ -2,6 +2,8 @@
 
 *A practical starter for cross-platform OpenGL applications*
 
+[![Travis CI Build Status](https://travis-ci.org/blair1618/stock.svg?branch=master)](https://travis-ci.org/blair1618/stock/builds)
+
 Just like soup stock, the code here is convenient material for getting something delicious cooking without too much prep time.
 
 Applications using Stock can be developed and run on Mac OS X, Linux, and Windows (using ANGLE).
