@@ -67,7 +67,7 @@ int main(void) {
     rs.configure();
     rs.clearColor(0.f, 0.f, 0.f, 1.f);
 
-    Log::setLevel(stock::Log::Level::verbose);
+    Log::setLevel(stock::Log::Level::VERBOSE);
 
     // Loop until the user closes the window.
     while (!glfwWindowShouldClose(window)) {

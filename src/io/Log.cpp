@@ -5,7 +5,7 @@
 
 namespace stock {
 
-Log::Level Log::s_level = Log::Level::warning;
+Log::Level Log::s_level = Log::Level::WARNING;
 
 #define PRINT_STRING(str) do { \
     std::fprintf(stderr, "%s\n", str); \
@@ -24,27 +24,27 @@ void Log::write(Level level, const std::string& message) {
 }
 
 void Log::v(const std::string& message) {
-    if (Level::verbose < s_level) { return; }
+    if (Level::VERBOSE < s_level) { return; }
     PRINT_STRING(message.c_str());
 }
 
 void Log::d(const std::string& message) {
-    if (Level::debug < s_level) { return; }
+    if (Level::DEBUGGING < s_level) { return; }
     PRINT_STRING(message.c_str());
 }
 
 void Log::w(const std::string& message) {
-    if (Level::warning < s_level) { return; }
+    if (Level::WARNING < s_level) { return; }
     PRINT_STRING(message.c_str());
 }
 
 void Log::e(const std::string& message) {
-    if (Level::error < s_level) { return; }
+    if (Level::ERROR < s_level) { return; }
     PRINT_STRING(message.c_str());
 }
 
 void Log::a(const std::string& message) {
-    if (Level::assert < s_level) { return; }
+    if (Level::ASSERT < s_level) { return; }
     PRINT_STRING(message.c_str());
 }
 
@@ -54,27 +54,27 @@ void Log::writef(Level level, const char* format, ...) {
 }
 
 void Log::vf(const char* format, ...) {
-    if (Level::verbose < s_level) { return; }
+    if (Level::VERBOSE < s_level) { return; }
     PRINT_VARIADIC(format);
 }
 
 void Log::df(const char* format, ...) {
-    if (Level::debug < s_level) { return; }
+    if (Level::DEBUGGING < s_level) { return; }
     PRINT_VARIADIC(format);
 }
 
 void Log::wf(const char* format, ...) {
-    if (Level::debug < s_level) { return; }
+    if (Level::DEBUGGING < s_level) { return; }
     PRINT_VARIADIC(format);
 }
 
 void Log::ef(const char* format, ...) {
-    if (Level::error < s_level) { return; }
+    if (Level::ERROR < s_level) { return; }
     PRINT_VARIADIC(format);
 }
 
 void Log::af(const char* format, ...) {
-    if (Level::assert < s_level) { return; }
+    if (Level::ASSERT < s_level) { return; }
     PRINT_VARIADIC(format);
 }
 

@@ -6,24 +6,24 @@
 namespace stock {
 
 ShaderUniform::ShaderUniform(int value)
-    : type(ValueType::scalar_int), scalar_int(value) {}
+    : m_type(ValueType::SCALAR_INT), m_scalarInt(value) {}
 
 ShaderUniform::ShaderUniform(float value)
-    : type(ValueType::scalar_float), scalar_float(value) {}
+    : m_type(ValueType::SCALAR_FLOAT), m_scalarFloat(value) {}
 
 ShaderUniform::ShaderUniform(int* array, size_t count)
-    : type(ValueType::array_int), vector_int(array, array + count) {}
+    : m_type(ValueType::ARRAY_INT), m_vectorInt(array, array + count) {}
 
 ShaderUniform::ShaderUniform(float* array, size_t count)
-    : type(ValueType::array_float), vector_float(array, array + count) {}
+    : m_type(ValueType::ARRAY_FLOAT), m_vectorFloat(array, array + count) {}
 
 ShaderUniform::~ShaderUniform() {
-    switch (type) {
-        case ValueType::array_int:
-            vector_int.~vector<int>();
+    switch (m_type) {
+        case ValueType::ARRAY_INT:
+            m_vectorInt.~vector<int>();
             break;
-        case ValueType::array_float:
-            vector_float.~vector<float>();
+        case ValueType::ARRAY_FLOAT:
+            m_vectorFloat.~vector<float>();
             break;
         default:
             break;
@@ -31,32 +31,32 @@ ShaderUniform::~ShaderUniform() {
 }
 
 size_t ShaderUniform::count() {
-    switch (type) {
-        case ValueType::scalar_int:
-        case ValueType::scalar_float:
+    switch (m_type) {
+        case ValueType::SCALAR_INT:
+        case ValueType::SCALAR_FLOAT:
             return 1;
-        case ValueType::array_int:
-            return vector_int.size();
-        case ValueType::array_float:
-            return vector_float.size();
+        case ValueType::ARRAY_INT:
+            return m_vectorInt.size();
+        case ValueType::ARRAY_FLOAT:
+            return m_vectorFloat.size();
     }
 }
 
 bool ShaderUniform::equals(const ShaderUniform& other) {
 
-    if (type != other.type) {
+    if (m_type != other.m_type) {
         return false;
     }
 
-    switch (type) {
-        case ValueType::scalar_int:
-            return (scalar_int == other.scalar_int);
-        case ValueType::scalar_float:
-            return (scalar_float == other.scalar_float);
-        case ValueType::array_int:
-            return vector_int == other.vector_int;
-        case ValueType::array_float:
-            return vector_float == other.vector_float;
+    switch (m_type) {
+        case ValueType::SCALAR_INT:
+            return (m_scalarInt == other.m_scalarInt);
+        case ValueType::SCALAR_FLOAT:
+            return (m_scalarFloat == other.m_scalarFloat);
+        case ValueType::ARRAY_INT:
+            return m_vectorInt == other.m_vectorInt;
+        case ValueType::ARRAY_FLOAT:
+            return m_vectorFloat == other.m_vectorFloat;
     }
 }
 

@@ -38,20 +38,20 @@ public:
 
 private:
     enum class ValueType : uint8_t {
-        scalar_int,
-        scalar_float,
-        array_int,
-        array_float,
+        SCALAR_INT,
+        SCALAR_FLOAT,
+        ARRAY_INT,
+        ARRAY_FLOAT,
     };
 
     union {
-        int scalar_int = 0;
-        float scalar_float;
-        std::vector<int> vector_int;
-        std::vector<float> vector_float;
+        int m_scalarInt = 0;
+        float m_scalarFloat;
+        std::vector<int> m_vectorInt;
+        std::vector<float> m_vectorFloat;
     };
 
-    ValueType type = ValueType::scalar_int;
+    ValueType m_type = ValueType::SCALAR_INT;
 
     friend class ShaderProgram;
 };

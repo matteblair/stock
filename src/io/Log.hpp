@@ -12,11 +12,11 @@ class Log {
 public:
 
     enum class Level {
-        verbose,
-        debug,
-        warning,
-        error,
-        assert,
+        VERBOSE,
+        DEBUGGING,
+        WARNING,
+        ERROR,
+        ASSERT,
     };
 
     // Log a message.
