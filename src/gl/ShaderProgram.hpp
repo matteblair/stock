@@ -3,12 +3,11 @@
 //
 #pragma once
 
-#include "gl/GL.hpp"
+#include "gl/RenderState.hpp"
 #include "gl/ShaderUniform.hpp"
 #include "glm/glm.hpp"
+#include <array>
 #include <string>
-#include <vector>
-#include <unordered_map>
 
 namespace stock {
 
@@ -37,7 +36,7 @@ public:
     GLuint getGlVertexShader() const { return m_glVertexShader; };
 
     // Fetch the location of a shader attribute and cache the result.
-    GLint getAttribLocation(const std::string& attribName);
+    GLint getAttributeLocation(const std::string& name);
 
     // Fetch the location of a shader uniform and cache the result.
     GLint getUniformLocation(const UniformLocation& uniformName);
@@ -73,15 +72,15 @@ public:
 
 private:
 
+    std::array<std::string, RenderState::MAX_ATTRIBUTES> m_attributes;
+
+    std::string m_fragmentShaderSource;
+    std::string m_vertexShaderSource;
+
     int32_t m_generation = -1;
     GLuint m_glProgram = 0;
     GLuint m_glFragmentShader = 0;
     GLuint m_glVertexShader = 0;
-
-    std::unordered_map<std::string, GLint> m_attribMap;
-
-    std::string m_fragmentShaderSource;
-    std::string m_vertexShaderSource;
 
     bool m_needsBuild = true;
     bool m_invalidShaderSource = false;

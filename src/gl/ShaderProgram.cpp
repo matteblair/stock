@@ -2,7 +2,6 @@
 // Created by Matt Blair on 4/2/16.
 //
 #include "gl/Error.hpp"
-#include "gl/RenderState.hpp"
 #include "gl/ShaderProgram.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
@@ -36,19 +35,22 @@ void ShaderProgram::setSourceStrings(const std::string& _fragSrc, const std::str
     m_needsBuild = true;
 }
 
-GLint ShaderProgram::getAttribLocation(const std::string& _attribName) {
+GLint ShaderProgram::getAttributeLocation(const std::string& name) {
 
-    auto it = m_attribMap.find(_attribName);
-
-    if (it == m_attribMap.end()) {
-        // If this is a new entry, get the actual location from OpenGL.
-        GLint location = glGetAttribLocation(m_glProgram, _attribName.c_str());
-        CHECK_GL();
-        m_attribMap[_attribName] = location;
-        return location;
-    } else {
-        return it->second;
+    auto maxAttributes = RenderState::MAX_ATTRIBUTES;
+    for (size_t i = 0; i < maxAttributes; ++i) {
+        if (m_attributes[i] == name) { return static_cast<GLint>(i); }
     }
+
+    // If this is a new entry, get the actual location from OpenGL.
+    GLint location = glGetAttribLocation(m_glProgram, name.c_str());
+    CHECK_GL();
+    assert(location < RenderState::MAX_ATTRIBUTES);
+    if (location >= 0) {
+        m_attributes[location] = name;
+    }
+    return location;
+
 }
 
 GLint ShaderProgram::getUniformLocation(const UniformLocation& _uniform) {
@@ -126,7 +128,7 @@ bool ShaderProgram::build(RenderState& rs) {
 
     // Clear any cached shader locations.
 
-    m_attribMap.clear();
+    m_attributes.fill("");
 
     return true;
 }

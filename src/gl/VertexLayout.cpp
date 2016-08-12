@@ -45,12 +45,12 @@ size_t VertexLayout::getOffset(const std::string& attributeName) const {
 void VertexLayout::enable(RenderState& rs, ShaderProgram& program, size_t offset) {
 
     GLuint glProgram = program.getGlProgram();
-    size_t maxVertexAttributes = rs.attributeBindings.size();
+    size_t maxVertexAttributes = RenderState::MAX_ATTRIBUTES;
 
     // Enable all attributes for this layout.
     for (auto& a : m_attributes) {
 
-        GLint location = program.getAttribLocation(a.name);
+        GLint location = program.getAttributeLocation(a.name);
         assert(location < maxVertexAttributes);
 
         if (location >= 0) {
