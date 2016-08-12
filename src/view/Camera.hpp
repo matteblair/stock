@@ -20,16 +20,21 @@ public:
         ORTHOGRAPHIC,
     };
 
-    Camera();
+    struct Options {
+        float fov = 1.5708f;
+        float near = 0.1f;
+        float far = 1000.f;
+        Type type = Type::PERSPECTIVE;
+    };
+
+    Camera(float width, float height, Options options);
 
     float width() const;
-    void setWidth(float width);
-
     float height() const;
-    void setHeight(float height);
+    void resize(float width, float height);
 
     float fieldOfView() const;
-    void setFieldOfView(float fov);
+    void setFieldOfView(float radians);
 
     Type projectionType() const;
     void setProjectionType(Type type);
@@ -62,11 +67,11 @@ public:
     void translate(const glm::vec3& displacement);
     void translate(float x, float y, float z);
 
-    void rotate(const glm::vec3& axis, float angle);
-    void rotate(float axisX, float axisY, float axisZ, float angle);
+    void rotate(const glm::vec3& axis, float radians);
+    void rotate(float axisX, float axisY, float axisZ, float radians);
 
-    void orbit(const glm::vec3& target, const glm::vec3& axis, float angle);
-    void orbit(float tX, float tY, float tZ, float aX, float aY, float aZ, float angle);
+    void orbit(const glm::vec3& target, const glm::vec3& axis, float radians);
+    void orbit(float tX, float tY, float tZ, float aX, float aY, float aZ, float radians);
 
     void update();
 
@@ -83,12 +88,9 @@ private:
     glm::vec3 m_position;
     glm::vec3 m_up = { 0.f, 0.f, 1.f };
     glm::vec3 m_direction { 0.f, 1.f, 0.f };
+    Options m_options;
     float m_width = 1.f;
     float m_height = 1.f;
-    float m_fov = 1.5708f;
-    float m_near = 0.1f;
-    float m_far = 1000.f;
-    Type m_type = Type::PERSPECTIVE;
     bool m_dirty = true;
 
 };

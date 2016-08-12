@@ -8,59 +8,56 @@
 
 namespace stock {
 
-Camera::Camera() {}
+Camera::Camera(float width, float height, Options options)
+    : m_options(options), m_width(width), m_height(height) {}
 
 float Camera::width() const {
     return m_width;
-}
-
-void Camera::setWidth(float width) {
-    m_width = width;
-    m_dirty = true;
 }
 
 float Camera::height() const {
     return m_height;
 }
 
-void Camera::setHeight(float height) {
+void Camera::resize(float width, float height) {
+    m_width = width;
     m_height = height;
     m_dirty = true;
 }
 
 float Camera::fieldOfView() const {
-    return m_fov;
+    return m_options.fov;
 }
 
-void Camera::setFieldOfView(float fov) {
-    m_fov = fov;
+void Camera::setFieldOfView(float radians) {
+    m_options.fov = radians;
     m_dirty = true;
 }
 
 Camera::Type Camera::projectionType() const {
-    return m_type;
+    return m_options.type;
 }
 
 void Camera::setProjectionType(Type type) {
-    m_type = type;
+    m_options.type = type;
     m_dirty = true;
 }
 
 float Camera::nearDepth() const {
-    return m_near;
+    return m_options.near;
 }
 
 void Camera::setNearDepth(float near) {
-    m_near = near;
+    m_options.near = near;
     m_dirty = true;
 }
 
 float Camera::farDepth() const {
-    return m_far;
+    return m_options.far;
 }
 
 void Camera::setFarDepth(float far) {
-    m_far = far;
+    m_options.far = far;
     m_dirty = true;
 }
 
@@ -128,24 +125,24 @@ void Camera::translate(float x, float y, float z) {
     translate(glm::vec3(x, y, z));
 }
 
-void Camera::rotate(const glm::vec3& axis, float angle) {
-    m_direction = glm::rotate(m_direction, angle, axis);
+void Camera::rotate(const glm::vec3& axis, float radians) {
+    m_direction = glm::rotate(m_direction, radians, axis);
     m_dirty = true;
 }
 
-void Camera::rotate(float axisX, float axisY, float axisZ, float angle) {
-    rotate(glm::vec3(axisX, axisY, axisZ), angle);
+void Camera::rotate(float axisX, float axisY, float axisZ, float radians) {
+    rotate(glm::vec3(axisX, axisY, axisZ), radians);
 }
 
-void Camera::orbit(const glm::vec3& target, const glm::vec3& axis, float angle) {
+void Camera::orbit(const glm::vec3& target, const glm::vec3& axis, float radians) {
     auto displacement = target - m_position;
-    displacement = glm::rotate(displacement, angle, axis);
+    displacement = glm::rotate(displacement, radians, axis);
     m_position = target - displacement;
     m_dirty = true;
 }
 
-void Camera::orbit(float tX, float tY, float tZ, float aX, float aY, float aZ, float angle) {
-    orbit(glm::vec3(tX, tY, tZ), glm::vec3(aX, aY, aZ), angle);
+void Camera::orbit(float tX, float tY, float tZ, float aX, float aY, float aZ, float radians) {
+    orbit(glm::vec3(tX, tY, tZ), glm::vec3(aX, aY, aZ), radians);
 }
 
 void Camera::update() {
@@ -158,12 +155,12 @@ void Camera::update() {
     // Create projection matrix.
     float hw = m_width * .5f;
     float hh = m_height * .5f;
-    switch (m_type) {
+    switch (m_options.type) {
         case Type::PERSPECTIVE:
-            m_projMatrix = glm::perspectiveFov(m_fov, m_width, m_height, m_near, m_far);
+            m_projMatrix = glm::perspectiveFov(m_options.fov, m_width, m_height, m_options.near, m_options.far);
             break;
         case Type::ORTHOGRAPHIC:
-            m_projMatrix = glm::ortho(-hw, hw, -hh, hh, m_near, m_far);
+            m_projMatrix = glm::ortho(-hw, hw, -hh, hh, m_options.near, m_options.far);
             break;
     }
 

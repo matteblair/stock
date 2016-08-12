@@ -73,9 +73,7 @@ int main(void) {
     rs.clearColor(0.f, 0.f, 0.f, 1.f);
     rs.depthTest(GL_TRUE);
 
-    Camera camera;
-    camera.setWidth(1024.f);
-    camera.setHeight(768.f);
+    Camera camera(1024.f, 768.f, Camera::Options());
     camera.setPosition(0.f, -3.f, 0.f);
 
     Log::setLevel(Log::Level::VERBOSE);
