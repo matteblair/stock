@@ -69,8 +69,11 @@ public:
     static bool loadImageFileData(Texture* texture, const uint8_t* data, size_t size, Options options);
 
     // Get the image dimensions of the Texture.
-    uint32_t width();
-    uint32_t height();
+    uint32_t width() const;
+    uint32_t height() const;
+
+    // Get the OpenGL handle of the Texture.
+    GLuint glHandle() const;
 
     // Initialize OpenGL resources for the Texture, if needed.
     void prepare(RenderState& rs);

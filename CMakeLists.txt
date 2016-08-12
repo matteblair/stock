@@ -9,6 +9,7 @@ include_directories(src ${STOCK_INCLUDE_DIRS})
 
 set(SOURCE_FILES
         src/gl/Error.cpp
+        src/gl/Framebuffer.cpp
         src/gl/Mesh.cpp
         src/gl/RenderState.cpp
         src/gl/ShaderProgram.cpp

@@ -64,12 +64,16 @@ bool Texture::loadImageFileData(Texture* texture, const uint8_t* data, size_t si
 
 }
 
-uint32_t Texture::width() {
+uint32_t Texture::width() const {
     return m_width;
 }
 
-uint32_t Texture::height() {
+uint32_t Texture::height() const {
     return m_height;
+}
+
+GLuint Texture::glHandle() const {
+    return m_glHandle;
 }
 
 void Texture::prepare(RenderState& rs) {
