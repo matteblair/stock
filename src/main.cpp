@@ -1,3 +1,4 @@
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include "gl/Error.hpp"
 #include "gl/Mesh.hpp"
@@ -48,6 +49,8 @@ int main(void) {
 
     // Make the window's context current.
     glfwMakeContextCurrent(window);
+
+    gladLoadGLES2Loader((GLADloadproc) glfwGetProcAddress);
 
     ShaderProgram shader;
     shader.setSourceStrings(fs_src, vs_src);

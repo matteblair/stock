@@ -5,10 +5,10 @@ set(STOCK_LIBRARIES "")
 ## GLFW ##
 
 # configure GLFW to build only the library
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build the GLFW example programs")
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build the GLFW test programs")
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build the GLFW documentation")
-set(GLFW_INSTALL OFF CACHE BOOL "Generate installation target")
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
+set(GLFW_INSTALL OFF CACHE BOOL "")
 set(CMAKE_WARN_DEPRECATED FALSE)
 
 add_subdirectory(${STOCK_DEPS_DIR}/glfw)
@@ -17,6 +17,12 @@ target_compile_definitions(glfw PRIVATE NDEBUG)
 list(APPEND STOCK_INCLUDE_DIRS ${STOCK_DEPS_DIR}/glfw/include)
 list(APPEND STOCK_LIBRARIES glfw)
 list(APPEND STOCK_LIBRARIES ${GLFW_LIBRARIES})
+
+## GLAD ##
+
+add_subdirectory(${STOCK_DEPS_DIR}/glad)
+list(APPEND STOCK_INCLUDE_DIRS ${STOCK_DEPS_DIR}/glad/include)
+list(APPEND STOCK_LIBRARIES glad)
 
 ## OpenGL ##
 
