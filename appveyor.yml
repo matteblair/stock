@@ -1,0 +1,8 @@
+skip_tags: true
+before_build:
+  - git submodule update --init
+build_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - cmake --build .
