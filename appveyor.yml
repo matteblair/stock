@@ -6,3 +6,6 @@ build_script:
   - cd build
   - cmake ..
   - cmake --build .
+artifacts:
+  - path: \build\Debug\stock.exe
+    name: app
