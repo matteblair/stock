@@ -15,13 +15,13 @@ public:
 
 };
 
-#if defined(DEBUG)
-    #define CHECK_GL( X ) X; \
+#if defined(NDEBUG)
+    #define CHECK_GL( X ) X;
+#else
+#define CHECK_GL( X ) X; \
     while (GLenum error = glGetError()) { \
         Log::ef("GL error in %s:%d %s\n", __FILE__, __LINE__, Error::getGlErrorString(error)); \
     }
-#else
-    #define CHECK_GL( X ) X;
 #endif
 
 } // namespace stock

@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(stock)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+set(CMAKE_CXX_STANDARD 11)
 
 include(deps/deps.cmake)
 

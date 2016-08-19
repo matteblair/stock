@@ -12,8 +12,6 @@ set(GLFW_INSTALL OFF CACHE BOOL "")
 set(CMAKE_WARN_DEPRECATED FALSE)
 
 add_subdirectory(${STOCK_DEPS_DIR}/glfw)
-target_compile_options(glfw PRIVATE -O3)
-target_compile_definitions(glfw PRIVATE NDEBUG)
 list(APPEND STOCK_INCLUDE_DIRS ${STOCK_DEPS_DIR}/glfw/include)
 list(APPEND STOCK_LIBRARIES glfw)
 list(APPEND STOCK_LIBRARIES ${GLFW_LIBRARIES})
