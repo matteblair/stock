@@ -5,6 +5,7 @@ addons:
   apt:
     sources:
       - kubuntu-backports
+      - george-edison55-precise-backports
     packages:
       - cmake
       - ninja-build
