@@ -15,7 +15,7 @@ File::~File() {
 bool File::open() {
 
     if (!m_isOpen) {
-        m_handle = fopen(m_path.c_str(), "rb");
+        m_handle = std::fopen(m_path.c_str(), "rb");
         return m_handle != nullptr;
     }
 
@@ -26,7 +26,7 @@ bool File::open() {
 bool File::close() {
 
     if (m_isOpen) {
-        return fclose(m_handle) == 0;
+        return std::fclose(m_handle) == 0;
     }
 
     return false;
@@ -46,9 +46,9 @@ size_t File::getSize() {
         return 0;
     }
 
-    fseek(m_handle, 0, SEEK_END);
-    size_t size = ftell(m_handle);
-    fseek(m_handle, 0, SEEK_SET);
+    std::fseek(m_handle, 0, SEEK_END);
+    size_t size = std::ftell(m_handle);
+    std::fseek(m_handle, 0, SEEK_SET);
 
     return size;
 
@@ -60,9 +60,9 @@ size_t File::read(uint8_t* buffer, size_t start, size_t count) {
         return 0;
     }
 
-    fseek(m_handle, start, SEEK_SET);
-    size_t read = fread(buffer, 1, count, m_handle);
-    fseek(m_handle, 0, SEEK_SET);
+    std::fseek(m_handle, start, SEEK_SET);
+    size_t read = std::fread(buffer, 1, count, m_handle);
+    std::fseek(m_handle, 0, SEEK_SET);
 
     return read;
 

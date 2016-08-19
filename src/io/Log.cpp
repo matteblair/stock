@@ -2,6 +2,7 @@
 // Created by Matt Blair on 4/29/16.
 //
 #include "io/Log.hpp"
+#include <cstdarg>
 
 namespace stock {
 

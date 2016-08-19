@@ -47,7 +47,7 @@ public:
 protected:
 
     std::string m_path;
-    FILE* m_handle = nullptr;
+    std::FILE* m_handle = nullptr;
     bool m_isOpen = false;
 
 };
