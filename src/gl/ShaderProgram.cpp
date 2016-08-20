@@ -4,6 +4,7 @@
 #include "gl/Error.hpp"
 #include "gl/ShaderProgram.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include <algorithm>
 
 namespace stock {
 
@@ -198,10 +199,23 @@ void ShaderProgram::checkValidity(RenderState& renderState) {
     }
 }
 
+bool uniformCacheCompare(const ShaderUniform& u, int location) {
+    return u.location() < location;
+}
+
+ShaderUniform& ShaderProgram::getCachedUniform(GLint location) {
+    auto it = std::lower_bound(m_uniformCache.begin(), m_uniformCache.end(), location, &uniformCacheCompare);
+    if (it != m_uniformCache.end() && it->location() == location) {
+        return *it;
+    }
+    return *m_uniformCache.emplace(it, location);
+}
+
 void ShaderProgram::setUniformi(RenderState& rs, const UniformLocation& _loc, int _value) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    if (location >= 0 && uniform.update(_value)) {
         CHECK_GL(glUniform1i(location, _value));
     }
 }
@@ -209,7 +223,9 @@ void ShaderProgram::setUniformi(RenderState& rs, const UniformLocation& _loc, in
 void ShaderProgram::setUniformi(RenderState& rs, const UniformLocation& _loc, int _value0, int _value1) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    int values[] = { _value0, _value1 };
+    if (location >= 0 && uniform.update(values, 2)) {
         CHECK_GL(glUniform2i(location, _value0, _value1));
     }
 }
@@ -217,7 +233,9 @@ void ShaderProgram::setUniformi(RenderState& rs, const UniformLocation& _loc, in
 void ShaderProgram::setUniformi(RenderState& rs, const UniformLocation& _loc, int _value0, int _value1, int _value2) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    int values[] = { _value0, _value1, _value2 };
+    if (location >= 0 && uniform.update(values, 3)) {
         CHECK_GL(glUniform3i(location, _value0, _value1, _value2));
     }
 }
@@ -225,7 +243,9 @@ void ShaderProgram::setUniformi(RenderState& rs, const UniformLocation& _loc, in
 void ShaderProgram::setUniformi(RenderState& rs, const UniformLocation& _loc, int _value0, int _value1, int _value2, int _value3) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    int values[] = { _value0, _value1, _value2, _value3 };
+    if (location >= 0 && uniform.update(values, 4)) {
         CHECK_GL(glUniform4i(location, _value0, _value1, _value2, _value3));
     }
 }
@@ -233,7 +253,8 @@ void ShaderProgram::setUniformi(RenderState& rs, const UniformLocation& _loc, in
 void ShaderProgram::setUniformf(RenderState& rs, const UniformLocation& _loc, float _value) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    if (location >= 0 && uniform.update(_value)) {
         CHECK_GL(glUniform1f(location, _value));
     }
 }
@@ -253,7 +274,8 @@ void ShaderProgram::setUniformf(RenderState& rs, const UniformLocation& _loc, fl
 void ShaderProgram::setUniformf(RenderState& rs, const UniformLocation& _loc, const glm::vec2& _value) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    if (location >= 0 && uniform.update(glm::value_ptr(_value), 2)) {
         CHECK_GL(glUniform2f(location, _value.x, _value.y));
     }
 }
@@ -261,7 +283,8 @@ void ShaderProgram::setUniformf(RenderState& rs, const UniformLocation& _loc, co
 void ShaderProgram::setUniformf(RenderState& rs, const UniformLocation& _loc, const glm::vec3& _value) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    if (location >= 0 && uniform.update(glm::value_ptr(_value), 3)) {
         CHECK_GL(glUniform3f(location, _value.x, _value.y, _value.z));
     }
 }
@@ -269,7 +292,8 @@ void ShaderProgram::setUniformf(RenderState& rs, const UniformLocation& _loc, co
 void ShaderProgram::setUniformf(RenderState& rs, const UniformLocation& _loc, const glm::vec4& _value) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    if (location >= 0 && uniform.update(glm::value_ptr(_value), 4)) {
         CHECK_GL(glUniform4f(location, _value.x, _value.y, _value.z, _value.w));
     }
 }
@@ -277,7 +301,8 @@ void ShaderProgram::setUniformf(RenderState& rs, const UniformLocation& _loc, co
 void ShaderProgram::setUniformMatrix2f(RenderState& rs, const UniformLocation& _loc, const glm::mat2& _value, bool _transpose) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    if (location >= 0 && uniform.update(glm::value_ptr(_value), 4)) {
         CHECK_GL(glUniformMatrix2fv(location, 1, _transpose, glm::value_ptr(_value)));
     }
 }
@@ -285,7 +310,8 @@ void ShaderProgram::setUniformMatrix2f(RenderState& rs, const UniformLocation& _
 void ShaderProgram::setUniformMatrix3f(RenderState& rs, const UniformLocation& _loc, const glm::mat3& _value, bool _transpose) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    if (location >= 0 && uniform.update(glm::value_ptr(_value), 9)) {
         CHECK_GL(glUniformMatrix3fv(location, 1, _transpose, glm::value_ptr(_value)));
     }
 }
@@ -293,7 +319,8 @@ void ShaderProgram::setUniformMatrix3f(RenderState& rs, const UniformLocation& _
 void ShaderProgram::setUniformMatrix4f(RenderState& rs, const UniformLocation& _loc, const glm::mat4& _value, bool _transpose) {
     use(rs);
     GLint location = getUniformLocation(_loc);
-    if (location >= 0) {
+    auto& uniform = getCachedUniform(location);
+    if (location >= 0 && uniform.update(glm::value_ptr(_value), 16)) {
         CHECK_GL(glUniformMatrix4fv(location, 1, _transpose, glm::value_ptr(_value)));
     }
 }

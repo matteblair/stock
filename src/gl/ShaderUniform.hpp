@@ -26,22 +26,26 @@ class ShaderUniform {
 
 public:
 
-    ShaderUniform();
+    ShaderUniform(int location);
     ~ShaderUniform();
 
     ShaderUniform(const ShaderUniform& other);
     ShaderUniform(ShaderUniform&& other);
+    ShaderUniform& operator=(const ShaderUniform& other);
+    ShaderUniform& operator=(ShaderUniform&& other);
 
     // Update the uniform to store the given value; returns 'true' if the new
     // value is different from the old value.
     bool update(int value);
     bool update(float value);
-    bool update(int* array, size_t count);
-    bool update(float* array, size_t count);
+    bool update(const int* array, size_t count);
+    bool update(const float* array, size_t count);
 
     // If the uniform is an array, returns the number of elements; otherwise
     // returns zero.
-    size_t count();
+    size_t count() const;
+
+    int location() const;
 
 private:
     enum class ValueType : uint8_t {
@@ -59,6 +63,8 @@ private:
     };
 
     size_t m_count = 0;
+
+    int m_location = -1;
 
     ValueType m_type = ValueType::SCALAR_INT;
 

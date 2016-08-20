@@ -72,6 +72,7 @@ public:
 
 private:
 
+    std::vector<ShaderUniform> m_uniformCache;
     std::array<std::string, RenderState::MAX_ATTRIBUTES> m_attributes;
 
     std::string m_fragmentShaderSource;
@@ -88,6 +89,7 @@ private:
     void checkValidity(RenderState& renderState);
     GLuint makeLinkedShaderProgram(GLuint fragShader, GLuint vertShader);
     GLuint makeCompiledShader(const std::string& src, GLenum type);
+    ShaderUniform& getCachedUniform(GLint location);
 
 };
 
