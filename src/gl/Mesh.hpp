@@ -5,9 +5,9 @@
 
 #include "gl/GL.hpp"
 #include "gl/VertexLayout.hpp"
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace stock {
 
@@ -19,95 +19,88 @@ class RenderState;
 class MeshBase {
 
 public:
+  // Create an empty mesh with default options.
+  MeshBase();
 
-    // Create an empty mesh with default options.
-    MeshBase();
+  virtual ~MeshBase();
 
-    virtual ~MeshBase();
+  // Set the vertex layout to use when binding this Mesh for drawing.
+  void setVertexLayout(VertexLayout layout);
 
-    // Set the vertex layout to use when binding this Mesh for drawing.
-    void setVertexLayout(VertexLayout layout);
+  // Set the GL draw mode for this Mesh.
+  void setDrawMode(GLenum mode);
 
-    // Set the GL draw mode for this Mesh.
-    void setDrawMode(GLenum mode);
+  // Copy all added vertices and indices into OpenGL buffer objects; After
+  // geometry is uploaded, no more vertices or indices can be added.
+  virtual void upload(RenderState& rs);
 
-    // Copy all added vertices and indices into OpenGL buffer objects; After
-    // geometry is uploaded, no more vertices or indices can be added.
-    virtual void upload(RenderState& rs);
+  // Release all OpenGL resources for this Mesh.
+  void dispose(RenderState& rs);
 
-    // Release all OpenGL resources for this Mesh.
-    void dispose(RenderState& rs);
+  // Render the geometry in this mesh using the ShaderProgram _shader; if
+  // geometry has not already been uploaded it will be uploaded at this point.
+  bool draw(RenderState& rs, ShaderProgram& shader);
 
-    // Render the geometry in this mesh using the ShaderProgram _shader; if
-    // geometry has not already been uploaded it will be uploaded at this point.
-    bool draw(RenderState& rs, ShaderProgram& shader);
-
-    // Get the total size of VRAM in bytes used by this Mesh.
-    size_t getTotalBufferSize() const;
+  // Get the total size of VRAM in bytes used by this Mesh.
+  size_t getTotalBufferSize() const;
 
 protected:
+  bool checkValidity(RenderState& rs);
 
-    bool checkValidity(RenderState& rs);
+  VertexLayout m_vertexLayout;
 
-    VertexLayout m_vertexLayout;
+  // Generation in which this mesh's GL handles were created
+  int m_generation = -1;
 
-    // Generation in which this mesh's GL handles were created
-    int m_generation = -1;
+  // Vertex data
+  size_t m_vertexCount = 0;
+  GLuint m_glVertexBuffer = 0;
+  GLbyte* m_glVertexData = nullptr;
 
-    // Vertex data
-    size_t m_vertexCount = 0;
-    GLuint m_glVertexBuffer = 0;
-    GLbyte* m_glVertexData = nullptr;
+  // Index data
+  size_t m_indexCount = 0;
+  GLuint m_glIndexBuffer = 0;
+  GLushort* m_glIndexData = nullptr;
 
-    // Index data
-    size_t m_indexCount = 0;
-    GLuint m_glIndexBuffer = 0;
-    GLushort* m_glIndexData = nullptr;
+  GLenum m_drawMode = GL_TRIANGLES;
+  GLenum m_hint = GL_STATIC_DRAW;
 
-    GLenum m_drawMode = GL_TRIANGLES;
-    GLenum m_hint = GL_STATIC_DRAW;
-
-    bool m_isUploaded = false;
-
+  bool m_isUploaded = false;
 };
 
-template<class T>
-class Mesh : public MeshBase {
+template <class T> class Mesh : public MeshBase {
 
 public:
-    std::vector<T> vertices;
-    std::vector<uint16_t> indices;
-    bool retainData = false;
+  std::vector<T> vertices;
+  std::vector<uint16_t> indices;
+  bool retainData = false;
 
-    virtual void upload(RenderState& rs);
-    void reset();
+  virtual void upload(RenderState& rs);
+  void reset();
 };
 
-template<class T>
-void Mesh<T>::reset() {
+template <class T> void Mesh<T>::reset() {
+  vertices.clear();
+  indices.clear();
+  m_isUploaded = false;
+}
+
+template <class T> void Mesh<T>::upload(RenderState& rs) {
+  m_glVertexData = reinterpret_cast<GLbyte*>(vertices.data());
+  m_vertexCount = vertices.size();
+  m_glIndexData = indices.data();
+  m_indexCount = indices.size();
+  MeshBase::upload(rs);
+  if (!retainData) {
     vertices.clear();
     indices.clear();
-    m_isUploaded = false;
+  }
 }
 
-template<class T>
-void Mesh<T>::upload(RenderState& rs) {
-    m_glVertexData = reinterpret_cast<GLbyte*>(vertices.data());
-    m_vertexCount = vertices.size();
-    m_glIndexData = indices.data();
-    m_indexCount = indices.size();
-    MeshBase::upload(rs);
-    if (!retainData) {
-        vertices.clear();
-        indices.clear();
-    }
-}
-
-// TODO: To support indexed meshes of more than 2^16 vertices, we'll need to
-// use 32-bit integers in Mesh::indices and then compile them into 1 or more
-// subsets of 16-bit indices, which will each constitue a separate draw call.
+// TODO: Support indexed meshes of more than 2^16 vertices
+// We'll need to use 32-bit integers in Mesh::indices and then compile them into 1 or more subsets of 16-bit indices,
+// which will each constitute a separate draw call.
 
 // TODO: Add support for Vertex Array Objects
 
 } // namespace stock
-

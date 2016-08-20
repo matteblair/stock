@@ -1,0 +1,6 @@
+---
+BasedOnStyle: LLVM
+Language: Cpp
+AllowShortCaseLabelsOnASingleLine: true
+ColumnLimit: 120
+PointerAlignment: Left

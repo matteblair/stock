@@ -3,7 +3,6 @@
 //
 #pragma once
 
-#include "gl/Error.hpp"
 #include "gl/GL.hpp"
 #include <array>
 
@@ -12,149 +11,145 @@ namespace stock {
 class RenderState {
 
 public:
+  static constexpr size_t MAX_ATTRIBUTES = 16;
 
-    static constexpr size_t MAX_ATTRIBUTES = 16;
+  // Reset the render states.
+  void configure();
 
-    // Reset the render states.
-    void configure();
+  int generation();
 
-    int generation();
+  void increaseGeneration();
 
-    void increaseGeneration();
+  bool isValidGeneration(int _generation);
 
-    bool isValidGeneration(int _generation);
+  // Get the texture slot from a texture unit from 0 to TANGRAM_MAX_TEXTURE_UNIT-1.
+  static GLuint getTextureUnit(GLuint _unit);
 
-    // Get the texture slot from a texture unit from 0 to TANGRAM_MAX_TEXTURE_UNIT-1.
-    static GLuint getTextureUnit(GLuint _unit);
+  // Get the currently active texture unit.
+  int currentTextureUnit();
 
-    // Get the currently active texture unit.
-    int currentTextureUnit();
+  // Get the immediately next available texture unit and mark it unavailable.
+  int nextAvailableTextureUnit();
 
-    // Get the immediately next available texture unit and mark it unavailable.
-    int nextAvailableTextureUnit();
+  // Reset the currently used texture unit.
+  void resetTextureUnit();
 
-    // Reset the currently used texture unit.
-    void resetTextureUnit();
+  // Release one texture unit slot.
+  void releaseTextureUnit();
 
-    // Release one texture unit slot.
-    void releaseTextureUnit();
+  bool blending(GLboolean enable);
 
-    bool blending(GLboolean enable);
+  bool blendingFunc(GLenum sfactor, GLenum dfactor);
 
-    bool blendingFunc(GLenum sfactor, GLenum dfactor);
+  bool clearColor(GLclampf r, GLclampf g, GLclampf b, GLclampf a);
 
-    bool clearColor(GLclampf r, GLclampf g, GLclampf b, GLclampf a);
+  bool colorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a);
 
-    bool colorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a);
+  bool cullFace(GLenum face);
 
-    bool cullFace(GLenum face);
+  bool culling(GLboolean enable);
 
-    bool culling(GLboolean enable);
+  bool depthTest(GLboolean enable);
 
-    bool depthTest(GLboolean enable);
+  bool depthMask(GLboolean enable);
 
-    bool depthMask(GLboolean enable);
+  bool frontFace(GLenum face);
 
-    bool frontFace(GLenum face);
+  bool stencilMask(GLuint mask);
 
-    bool stencilMask(GLuint mask);
+  bool stencilFunc(GLenum func, GLint ref, GLuint mask);
 
-    bool stencilFunc(GLenum func, GLint ref, GLuint mask);
+  bool stencilOp(GLenum sfail, GLenum spassdfail, GLenum spassdpass);
 
-    bool stencilOp(GLenum sfail, GLenum spassdfail, GLenum spassdpass);
+  bool stencilTest(GLboolean enable);
 
-    bool stencilTest(GLboolean enable);
+  bool shaderProgram(GLuint program);
 
-    bool shaderProgram(GLuint program);
+  bool texture(GLenum target, GLuint handle);
 
-    bool texture(GLenum target, GLuint handle);
+  bool textureUnit(GLuint unit);
 
-    bool textureUnit(GLuint unit);
+  bool vertexBuffer(GLuint handle);
 
-    bool vertexBuffer(GLuint handle);
+  bool indexBuffer(GLuint handle);
 
-    bool indexBuffer(GLuint handle);
+  void vertexBufferUnset(GLuint handle);
 
-    void vertexBufferUnset(GLuint handle);
+  void indexBufferUnset(GLuint handle);
 
-    void indexBufferUnset(GLuint handle);
+  void shaderProgramUnset(GLuint program);
 
-    void shaderProgramUnset(GLuint program);
+  void textureUnset(GLenum target, GLuint handle);
 
-    void textureUnset(GLenum target, GLuint handle);
-
-    // For each vertex attribute location, contains the GL program last used to bind the attribute or zero if unbound.
-    std::array<GLuint, MAX_ATTRIBUTES> attributeBindings = { 0 };
+  // For each vertex attribute location, contains the GL program last used to bind the attribute or zero if unbound.
+  std::array<GLuint, MAX_ATTRIBUTES> attributeBindings = {0};
 
 private:
+  int m_validGeneration = 0;
+  int m_nextTextureUnit = 0;
 
-    int m_validGeneration = 0;
-    int m_nextTextureUnit = 0;
+  struct {
+    GLboolean enabled;
+    bool set;
+  } m_blending, m_culling, m_depthMask, m_depthTest, m_stencilTest;
 
-    struct {
-        GLboolean enabled;
-        bool set;
-    } m_blending, m_culling, m_depthMask, m_depthTest, m_stencilTest;
+  struct {
+    GLenum sfactor, dfactor;
+    bool set;
+  } m_blendingFunc;
 
-    struct {
-        GLenum sfactor, dfactor;
-        bool set;
-    } m_blendingFunc;
+  struct {
+    GLuint mask;
+    bool set;
+  } m_stencilMask;
 
-    struct {
-        GLuint mask;
-        bool set;
-    } m_stencilMask;
+  struct {
+    GLenum func;
+    GLint ref;
+    GLuint mask;
+    bool set;
+  } m_stencilFunc;
 
-    struct {
-        GLenum func;
-        GLint ref;
-        GLuint mask;
-        bool set;
-    } m_stencilFunc;
+  struct {
+    GLenum sfail, spassdfail, spassdpass;
+    bool set;
+  } m_stencilOp;
 
-    struct {
-        GLenum sfail, spassdfail, spassdpass;
-        bool set;
-    } m_stencilOp;
+  struct {
+    GLboolean r, g, b, a;
+    bool set;
+  } m_colorMask;
 
-    struct {
-        GLboolean r, g, b, a;
-        bool set;
-    } m_colorMask;
+  struct {
+    GLenum face;
+    bool set;
+  } m_frontFace, m_cullFace;
 
-    struct {
-        GLenum face;
-        bool set;
-    } m_frontFace, m_cullFace;
+  struct {
+    GLuint handle;
+    bool set;
+  } m_vertexBuffer, m_indexBuffer;
 
-    struct {
-        GLuint handle;
-        bool set;
-    } m_vertexBuffer, m_indexBuffer;
+  struct {
+    GLuint program;
+    bool set;
+  } m_program;
 
-    struct {
-        GLuint program;
-        bool set;
-    } m_program;
+  struct {
+    GLclampf r, g, b, a;
+    bool set;
+  } m_clearColor;
 
-    struct {
-        GLclampf r, g, b, a;
-        bool set;
-    } m_clearColor;
+  struct {
+    GLenum target;
+    GLuint handle;
+    bool set;
+  } m_texture;
 
-    struct {
-        GLenum target;
-        GLuint handle;
-        bool set;
-    } m_texture;
-
-    struct {
-        GLuint unit;
-        bool set;
-    } m_textureUnit;
-
+  struct {
+    GLuint unit;
+    bool set;
+  } m_textureUnit;
 };
 
 } // namespace stock
-

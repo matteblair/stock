@@ -10,15 +10,14 @@ namespace stock {
 
 struct VertexAttribute {
 
-    VertexAttribute(std::string name, GLint size, GLenum type, GLboolean normalized) :
-        name(name), offset(0), size(size), type(type), normalized(normalized) {}
+  VertexAttribute(std::string name, GLint size, GLenum type, GLboolean normalized)
+      : name(name), offset(0), size(size), type(type), normalized(normalized) {}
 
-    std::string name;
-    size_t offset;
-    GLint size;
-    GLenum type;
-    GLboolean normalized;
-
+  std::string name;
+  size_t offset;
+  GLint size;
+  GLenum type;
+  GLboolean normalized;
 };
 
 } // namespace stock

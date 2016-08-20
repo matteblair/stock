@@ -11,17 +11,17 @@ namespace stock {
 class Error {
 
 public:
-    static const char* getGlErrorString(GLenum error);
-
+  static const char* getGlErrorString(GLenum error);
 };
 
 #if defined(NDEBUG)
-    #define CHECK_GL( X ) X;
+#define CHECK_GL(X) X;
 #else
-#define CHECK_GL( X ) X; \
-    while (GLenum error = glGetError()) { \
-        Log::ef("GL error in %s:%d %s\n", __FILE__, __LINE__, Error::getGlErrorString(error)); \
-    }
+#define CHECK_GL(X)                                                                                                    \
+  X;                                                                                                                   \
+  while (GLenum error = glGetError()) {                                                                                \
+    Log::ef("GL error in %s:%d %s\n", __FILE__, __LINE__, Error::getGlErrorString(error));                             \
+  }
 #endif
 
 } // namespace stock

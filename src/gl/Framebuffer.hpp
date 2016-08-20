@@ -12,41 +12,38 @@ class RenderState;
 class Framebuffer {
 
 public:
+  using PixelFormat = Texture::PixelFormat;
 
-    using PixelFormat = Texture::PixelFormat;
+  struct Options {
+    PixelFormat format = PixelFormat::RGBA;
+    bool hasDepth = false;
+    bool hasStencil = false;
+  };
 
-    struct Options {
-        PixelFormat format = PixelFormat::RGBA;
-        bool hasDepth = false;
-        bool hasStencil = false;
-    };
+  Framebuffer(uint32_t width, uint32_t height, Options options);
 
-    Framebuffer(uint32_t width, uint32_t height, Options options);
+  ~Framebuffer();
 
-    ~Framebuffer();
+  void prepare(RenderState& rs);
 
-    void prepare(RenderState& rs);
+  void bind(RenderState& rs);
 
-    void bind(RenderState& rs);
+  void unbind(RenderState& rs);
 
-    void unbind(RenderState& rs);
+  void dispose(RenderState& rs);
 
-    void dispose(RenderState& rs);
-
-    Texture& colorTexture();
+  Texture& colorTexture();
 
 private:
+  static Texture::Options getColorBufferOptions(Options options);
 
-    static Texture::Options getColorBufferOptions(Options options);
-
-    Texture m_colorTexture;
-    GLuint m_framebufferHandle = 0;
-    GLuint m_depthbufferHandle = 0;
-    GLuint m_stencilbufferHandle = 0;
-    uint32_t m_width = 0;
-    uint32_t m_height = 0;
-    Options m_options;
-
+  Texture m_colorTexture;
+  GLuint m_framebufferHandle = 0;
+  GLuint m_depthbufferHandle = 0;
+  GLuint m_stencilbufferHandle = 0;
+  uint32_t m_width = 0;
+  uint32_t m_height = 0;
+  Options m_options;
 };
 
 } // namespace stock
