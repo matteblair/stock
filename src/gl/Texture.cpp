@@ -10,12 +10,12 @@
 
 namespace stock {
 
-static uint8_t defaultPixelData[4] = { 255, 0, 255, 255 };
+uint8_t Texture::defaultPixelData[4] = { 255, 0, 255, 255 };
 
 Texture::Texture() {}
 
 Texture::~Texture() {
-    if (m_data != nullptr) {
+    if (m_data != nullptr && m_data != defaultPixelData) {
         free(m_data);
     }
 }
@@ -93,9 +93,8 @@ void Texture::prepare(RenderState& rs) {
     auto format = static_cast<GLenum>(m_options.pixelFormat);
     auto type = static_cast<GLenum>(m_options.pixelType);
 
-    if (data == nullptr) {
+    if (data == defaultPixelData) {
         // This Texture doesn't have data assigned to it, so it will use a default solid color instead.
-        data = &defaultPixelData[0];
         width = 1;
         height = 1;
         format = GL_RGBA;

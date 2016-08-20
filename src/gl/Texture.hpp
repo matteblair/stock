@@ -97,7 +97,8 @@ protected:
     GLenum m_target = GL_TEXTURE_2D;
 
     // Source pixel data
-    uint8_t* m_data = nullptr;
+    static uint8_t defaultPixelData[];
+    uint8_t* m_data = defaultPixelData;
     size_t m_size = 0;
 
 };
