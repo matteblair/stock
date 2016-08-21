@@ -17,11 +17,9 @@ class RenderState;
 class ShaderProgram {
 
 public:
-  ShaderProgram();
+  // Create a shader program the given vertex and fragment shader GLSL sources.
+  ShaderProgram(const std::string& vertexShaderSource, const std::string& fragmentShaderSource);
   ~ShaderProgram();
-
-  // Set the vertex and fragment shader GLSL source to the given strings.
-  void setSourceStrings(const std::string& fragSrc, const std::string& vertSrc);
 
   // Attempts to compile and link the vertex and fragment shaders; if
   // compiling or linking fails it prints the compiler log, returns false, and
@@ -31,18 +29,18 @@ public:
   // Disposes the GL resources for this shader.
   void dispose(RenderState& rs);
 
-  GLuint getGlProgram() const { return m_glProgram; };
-  GLuint getGlFragmentShader() const { return m_glFragmentShader; };
-  GLuint getGlVertexShader() const { return m_glVertexShader; };
+  GLuint getGlProgram() const;
+  GLuint getGlFragmentShader() const;
+  GLuint getGlVertexShader() const;
 
   // Fetch the location of a shader attribute and cache the result.
   GLint getAttributeLocation(const std::string& name);
 
   // Fetch the location of a shader uniform and cache the result.
-  GLint getUniformLocation(const UniformLocation& uniformName);
+  GLint getUniformLocation(const UniformLocation& uniform);
 
   // Returns true if this object represents a valid OpenGL shader program.
-  bool isValid() const { return m_glProgram != 0; };
+  bool isValid() const;
 
   // Bind the program in openGL if it is not already bound; If the shader sources
   // have been modified since the last time build() was called, also calls build().
@@ -50,25 +48,25 @@ public:
   bool use(RenderState& rs);
 
   // Ensure the program is bound and then set the named uniform to the given value(s).
-  void setUniformi(RenderState& rs, const UniformLocation& loc, int value);
-  void setUniformi(RenderState& rs, const UniformLocation& loc, int value0, int value1);
-  void setUniformi(RenderState& rs, const UniformLocation& loc, int value0, int value1, int value2);
-  void setUniformi(RenderState& rs, const UniformLocation& loc, int value0, int value1, int value2, int value3);
+  void setUniformi(RenderState& rs, const UniformLocation& loc, int v0);
+  void setUniformi(RenderState& rs, const UniformLocation& loc, int v0, int v1);
+  void setUniformi(RenderState& rs, const UniformLocation& loc, int v0, int v1, int v2);
+  void setUniformi(RenderState& rs, const UniformLocation& loc, int v0, int v1, int v2, int v3);
 
-  void setUniformf(RenderState& rs, const UniformLocation& loc, float value);
-  void setUniformf(RenderState& rs, const UniformLocation& loc, float value0, float value1);
-  void setUniformf(RenderState& rs, const UniformLocation& loc, float value0, float value1, float value2);
-  void setUniformf(RenderState& rs, const UniformLocation& loc, float value0, float value1, float value2, float value3);
+  void setUniformf(RenderState& rs, const UniformLocation& loc, float v0);
+  void setUniformf(RenderState& rs, const UniformLocation& loc, float v0, float v1);
+  void setUniformf(RenderState& rs, const UniformLocation& loc, float v0, float v1, float v2);
+  void setUniformf(RenderState& rs, const UniformLocation& loc, float v0, float v1, float v2, float v3);
 
-  void setUniformf(RenderState& rs, const UniformLocation& loc, const glm::vec2& value);
-  void setUniformf(RenderState& rs, const UniformLocation& loc, const glm::vec3& value);
-  void setUniformf(RenderState& rs, const UniformLocation& loc, const glm::vec4& value);
+  void setUniformf(RenderState& rs, const UniformLocation& loc, const glm::vec2& v0);
+  void setUniformf(RenderState& rs, const UniformLocation& loc, const glm::vec3& v0);
+  void setUniformf(RenderState& rs, const UniformLocation& loc, const glm::vec4& v0);
 
   // Ensures the program is bound and then sets the named uniform to the values
   // beginning at the pointer _value; 4 values are used for a 2x2 matrix, 9 values for a 3x3, etc.
-  void setUniformMatrix2f(RenderState& rs, const UniformLocation& loc, const glm::mat2& value, bool transpose = false);
-  void setUniformMatrix3f(RenderState& rs, const UniformLocation& loc, const glm::mat3& value, bool transpose = false);
-  void setUniformMatrix4f(RenderState& rs, const UniformLocation& loc, const glm::mat4& value, bool transpose = false);
+  void setUniformMatrix2f(RenderState& rs, const UniformLocation& loc, const glm::mat2& v0);
+  void setUniformMatrix3f(RenderState& rs, const UniformLocation& loc, const glm::mat3& v0);
+  void setUniformMatrix4f(RenderState& rs, const UniformLocation& loc, const glm::mat4& v0);
 
 private:
   std::vector<ShaderUniform> m_uniformCache;
@@ -83,11 +81,10 @@ private:
   GLuint m_glVertexShader = 0;
 
   bool m_needsBuild = true;
-  bool m_invalidShaderSource = false;
 
   void checkValidity(RenderState& renderState);
-  GLuint makeLinkedShaderProgram(GLuint fragShader, GLuint vertShader);
-  GLuint makeCompiledShader(const std::string& src, GLenum type);
+  GLuint makeLinkedShaderProgram(GLuint fragmentShader, GLuint vertexShader);
+  GLuint makeCompiledShader(const std::string& source, GLenum type);
   ShaderUniform& getCachedUniform(GLint location);
 };
 

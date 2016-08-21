@@ -52,8 +52,7 @@ int main(void) {
 
   gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress);
 
-  ShaderProgram shader;
-  shader.setSourceStrings(fs_src, vs_src);
+  ShaderProgram shader(fs_src, vs_src);
   UniformLocation mvpMatrixLocation("u_mvp");
 
   Mesh<Vertex> mesh;
