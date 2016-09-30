@@ -30,7 +30,7 @@ void RenderState::configure() {
   m_texture.set = false;
   m_textureUnit.set = false;
 
-  attributeBindings = {0};
+  attributeBindings.fill(0);
 
   CHECK_GL(glDepthFunc(GL_LESS));
 }

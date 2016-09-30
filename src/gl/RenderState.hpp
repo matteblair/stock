@@ -82,7 +82,7 @@ public:
   void textureUnset(GLenum target, GLuint handle);
 
   // For each vertex attribute location, contains the GL program last used to bind the attribute or zero if unbound.
-  std::array<GLuint, MAX_ATTRIBUTES> attributeBindings = {0};
+  std::array<GLuint, MAX_ATTRIBUTES> attributeBindings = {{0}};
 
 private:
   int m_validGeneration = 0;
