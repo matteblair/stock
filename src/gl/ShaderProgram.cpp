@@ -41,7 +41,7 @@ GLint ShaderProgram::getAttributeLocation(const std::string& name) {
   // If this is a new entry, get the actual location from OpenGL.
   GLint location = glGetAttribLocation(m_glProgram, name.c_str());
   CHECK_GL();
-  assert(location < RenderState::MAX_ATTRIBUTES);
+  assert(location < RenderState::MAX_ATTRIBUTES || location < 0);
   if (location >= 0) {
     m_attributes[location] = name;
   }
