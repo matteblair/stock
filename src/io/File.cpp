@@ -14,6 +14,7 @@ bool File::open() {
 
   if (!m_isOpen) {
     m_handle = std::fopen(m_path.c_str(), "rb");
+    m_isOpen = true;
     return m_handle != nullptr;
   }
 
@@ -23,6 +24,7 @@ bool File::open() {
 bool File::close() {
 
   if (m_isOpen) {
+    m_isOpen = false;
     return std::fclose(m_handle) == 0;
   }
 
