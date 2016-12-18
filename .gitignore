@@ -72,6 +72,9 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+# CLion build directories:
+/cmake-build-*
+
 ### Intellij Patch ###
 *.iml
 
