@@ -8,8 +8,8 @@
 namespace stock {
 
 Framebuffer::Framebuffer(uint32_t width, uint32_t height, Options options)
-    : m_colorTexture(width, height, nullptr, 0, getColorBufferOptions(options)), m_width(width), m_height(height),
-      m_options(options) {}
+    : m_colorTexture(Pixmap(width, height, nullptr, options.format), Texture::Options()),
+      m_width(width), m_height(height), m_options(options) {}
 
 Framebuffer::~Framebuffer() {}
 
@@ -131,12 +131,6 @@ void Framebuffer::dispose(RenderState& rs) {
 
 Texture& Framebuffer::colorTexture() {
   return m_colorTexture;
-}
-
-Texture::Options Framebuffer::getColorBufferOptions(Options options) {
-  Texture::Options textureOptions;
-  textureOptions.pixelFormat = options.format;
-  return textureOptions;
 }
 
 } // namespace stock

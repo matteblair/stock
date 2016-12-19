@@ -12,7 +12,7 @@ class RenderState;
 class Framebuffer {
 
 public:
-  using PixelFormat = Texture::PixelFormat;
+  using PixelFormat = Pixmap::PixelFormat;
 
   struct Options {
     PixelFormat format = PixelFormat::RGBA;
@@ -35,7 +35,6 @@ public:
   Texture& colorTexture();
 
 private:
-  static Texture::Options getColorBufferOptions(Options options);
 
   Texture m_colorTexture;
   GLuint m_framebufferHandle = 0;

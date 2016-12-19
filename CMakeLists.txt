@@ -7,6 +7,7 @@ set(STOCK_SOURCE_FILES
     src/gl/Error.cpp
     src/gl/Framebuffer.cpp
     src/gl/Mesh.cpp
+    src/gl/Pixmap.cpp
     src/gl/RenderState.cpp
     src/gl/ShaderProgram.cpp
     src/gl/ShaderUniform.cpp
