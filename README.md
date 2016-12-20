@@ -2,8 +2,8 @@
 
 *A practical starter for cross-platform OpenGL applications*
 
-[![Travis CI Build Status](https://travis-ci.org/blair1618/stock.svg?branch=master)](https://travis-ci.org/blair1618/stock/builds)
-[![Build status](https://ci.appveyor.com/api/projects/status/k9g4o0mh1kt52yxh?svg=true)](https://ci.appveyor.com/project/blair1618/stock)
+[![Travis CI Build Status](https://travis-ci.org/matteblair/stock.svg?branch=master)](https://travis-ci.org/matteblair/stock/builds)
+[![Build status](https://ci.appveyor.com/api/projects/status/k9g4o0mh1kt52yxh?svg=true)](https://ci.appveyor.com/project/matteblair/stock)
 
 Just like soup stock, the code here is convenient material for getting something delicious cooking without too much prep time.
 
