@@ -18,7 +18,7 @@ class ShaderProgram {
 
 public:
   // Create a shader program the given vertex and fragment shader GLSL sources.
-  ShaderProgram(const std::string& vertexShaderSource, const std::string& fragmentShaderSource);
+  ShaderProgram(const std::string& fragmentShaderSource, const std::string& vertexShaderSource);
   ~ShaderProgram();
 
   // Attempts to compile and link the vertex and fragment shaders; if
