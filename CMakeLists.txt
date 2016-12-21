@@ -19,6 +19,7 @@ set(SOURCE_FILES
         src/io/File.cpp
         src/io/Log.cpp
         src/view/Camera.cpp
+        src/terrain/TerrainModel.cpp
         src/main.cpp
         )
 

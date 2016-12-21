@@ -1,35 +1,48 @@
 #define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 #include "gl/Error.hpp"
 #include "gl/Mesh.hpp"
 #include "gl/RenderState.hpp"
 #include "gl/ShaderProgram.hpp"
+#include "io/File.hpp"
 #include "view/Camera.hpp"
-#include <GLFW/glfw3.h>
+#include "terrain/TerrainModel.hpp"
 
 using namespace stock;
 
-const std::string vs_src = R"SHADER_END(
-attribute vec3 a_position;
-attribute vec4 a_color;
-varying vec4 v_color;
-uniform mat4 u_mvp;
-void main() {
-    v_color = a_color;
-    gl_Position = u_mvp * vec4(a_position, 1.);
-}
-)SHADER_END";
-
-const std::string fs_src = R"SHADER_END(
-varying vec4 v_color;
-void main() {
-    gl_FragColor = v_color;
-}
-)SHADER_END";
-
-struct Vertex {
-  float x, y, z;
-  unsigned int color;
+struct AppData {
+  RenderState rs;
+  Camera camera = Camera(1024.f, 768.f, Camera::Options());
+  TerrainModel terrain;
+  float orbit = 0.f;
 };
+
+void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+  AppData* app = reinterpret_cast<AppData*>(glfwGetWindowUserPointer(window));
+
+  if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+    switch (key) {
+    case GLFW_KEY_G:
+      app->terrain.toggleGrid();
+      break;
+    case GLFW_KEY_H:
+      app->terrain.toggleHull();
+      break;
+    case GLFW_KEY_UP:
+      Log::df("Resolution increased to: %d\n", app->terrain.increaseResolution());
+      break;
+    case GLFW_KEY_DOWN:
+      Log::df("Resolution decreased to: %d\n", app->terrain.decreaseResolution());
+      break;
+    case GLFW_KEY_LEFT:
+      app->orbit = 0.01f;
+      break;
+    case GLFW_KEY_RIGHT:
+      app->orbit = -0.01f;
+    }
+  }
+}
 
 int main(void) {
 
@@ -39,6 +52,8 @@ int main(void) {
   if (!glfwInit()) {
     return -1;
   }
+
+  glfwWindowHint(GLFW_SAMPLES, 4);
 
   // Create a windowed mode window and its OpenGL context.
   window = glfwCreateWindow(1024, 768, "GLFW Window", nullptr, nullptr);
@@ -52,44 +67,36 @@ int main(void) {
 
   gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress);
 
-  ShaderProgram shader(fs_src, vs_src);
-  UniformLocation mvpMatrixLocation("u_mvp");
+  AppData app;
+  app.rs.configure();
+  app.rs.clearColor(0.f, 0.f, 0.f, 1.f);
+  app.rs.depthTest(GL_TRUE);
+  app.rs.culling(GL_TRUE);
 
-  Mesh<Vertex> mesh;
-  mesh.setVertexLayout(VertexLayout({
-      VertexAttribute("a_position", 3, GL_FLOAT, GL_FALSE), VertexAttribute("a_color", 4, GL_UNSIGNED_BYTE, GL_TRUE),
-  }));
-  mesh.vertices = {
-      {1.f, 1.f, 1.f, 0xff000000},
-      {-1.f, 1.f, -1.f, 0xffff0000},
-      {1.f, -1.f, -1.f, 0xff00ff00},
-      {-1.f, -1.f, 1.f, 0xff0000ff},
-  };
-  mesh.indices = {0, 1, 2, 0, 3, 1, 0, 2, 3, 1, 3, 2};
+  app.camera.setPosition(0.f, -.1f, .6f);
 
-  RenderState rs;
-  rs.configure();
-  rs.clearColor(0.f, 0.f, 0.f, 1.f);
-  rs.depthTest(GL_TRUE);
-
-  Camera camera(1024.f, 768.f, Camera::Options());
-  camera.setPosition(0.f, -3.f, 0.f);
+  app.terrain.loadElevationTexture(File("elevation.png").readAll());
+  app.terrain.loadNormalTexture(File("normals.png").readAll());
+  app.terrain.generateMesh(64);
 
   Log::setLevel(Log::Level::VERBOSE);
+
+  glfwSetWindowUserPointer(window, &app);
+
+  glfwSetKeyCallback(window, &onKeyEvent);
 
   // Loop until the user closes the window.
   while (!glfwWindowShouldClose(window)) {
     // Render here.
     CHECK_GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-    static const glm::vec3 point = {0.f, 0.f, 0.f}, axis = {0.f, 0.f, 1.f};
-    camera.orbit(point, axis, 0.016f);
-    camera.lookAt(point);
-    camera.update();
+    static const glm::vec3 point = {.5f, .5f, 0.f}, axis = {0.f, 0.f, 1.f};
+    app.camera.orbit(point, axis, app.orbit);
+    app.camera.lookAt(point);
+    app.camera.update();
+    app.orbit *= 0.95;
 
-    shader.setUniformMatrix4f(rs, mvpMatrixLocation, camera.viewProjectionMatrix());
-
-    mesh.draw(rs, shader);
+    app.terrain.render(app.rs, app.camera);
 
     // Swap front and back buffers.
     glfwSwapBuffers(window);
@@ -98,8 +105,7 @@ int main(void) {
     glfwPollEvents();
   }
 
-  shader.dispose(rs);
-  mesh.dispose(rs);
+  app.terrain.dispose(app.rs);
 
   glfwTerminate();
   return 0;
