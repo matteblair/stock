@@ -79,6 +79,10 @@ target_link_libraries(app PRIVATE
 
 add_subdirectory(tests)
 
+add_custom_command(TARGET stock
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/data ${CMAKE_BINARY_DIR})
+
 if(WIN32)
     execute_process(COMMAND conan install ${PROJECT_SOURCE_DIR}/conanfile.txt
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
