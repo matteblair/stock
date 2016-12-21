@@ -25,3 +25,7 @@ set(SOURCE_FILES
 add_executable(stock ${SOURCE_FILES})
 
 target_link_libraries(stock ${STOCK_LIBRARIES})
+
+add_custom_command(TARGET stock
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/data ${CMAKE_BINARY_DIR})
