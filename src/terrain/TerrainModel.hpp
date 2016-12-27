@@ -14,9 +14,11 @@ class TerrainModel {
 
 public:
 
+  using coord_t = uint8_t;
+
   struct Vertex {
-    Vertex(float x, float y) : x(x), y(y) {}
-    float x = 0.f, y = 0.f;
+    Vertex(coord_t x, coord_t y) : x(x), y(y) {}
+    coord_t x = 0, y = 0;
   };
 
   TerrainModel();

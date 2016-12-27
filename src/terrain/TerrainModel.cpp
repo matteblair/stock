@@ -40,7 +40,7 @@ TerrainModel::TerrainModel()
       m_normalTexLocation("u_normalTex"),
       m_mvpLocation("u_mvp"),
       m_tintLocation("u_tint") {
-  m_mesh.setVertexLayout(VertexLayout({ VertexAttribute("a_position", 2, GL_FLOAT, GL_FALSE) }));
+  m_mesh.setVertexLayout(VertexLayout({ VertexAttribute("a_position", 2, GL_UNSIGNED_BYTE, GL_TRUE) }));
 }
 
 bool TerrainModel::loadElevationTexture(std::vector<uint8_t> data) {
@@ -60,9 +60,9 @@ void TerrainModel::generateMesh(uint32_t resolution) {
   uint16_t index = 0;
 
   for (uint32_t col = 0; col < resolution; col++) {
-    float y = static_cast<float>(col) / resolution;
+    coord_t y = static_cast<coord_t>(col * 255 / resolution);
     for (uint32_t row = 0; row < resolution; row++) {
-      float x = static_cast<float>(row) / resolution;
+      coord_t x = static_cast<coord_t>(row * 255 / resolution);
       m_mesh.vertices.push_back({x, y});
 
       if (row < resolution - 1 && col < resolution - 1) {
