@@ -34,6 +34,8 @@ void main() {
 }
 )SHADER_END";
 
+#define USE_TRIANGLE_STRIP 1
+
 TerrainModel::TerrainModel()
     : m_shader(fs_src, vs_src),
       m_elevTexLocation("u_elevationTex"),
@@ -57,8 +59,22 @@ void TerrainModel::generateMesh(uint32_t resolution) {
 
   m_mesh.reset();
 
+  #if USE_TRIANGLE_STRIP
+  for (uint32_t col = 0; col < resolution; col++) {
+    uint8_t y0 = static_cast<uint8_t>(col * 255 / resolution);
+    uint8_t y1 = static_cast<uint8_t>((col + 1) * 255 / resolution);
+    uint8_t y2 = static_cast<uint8_t>((col + 2) * 255 / resolution);
+    uint8_t x = 0;
+    for (uint32_t row = 0; row < resolution; row++) {
+      x = static_cast<uint8_t>(row * 255 / resolution);
+      m_mesh.vertices.push_back({x, y1});
+      m_mesh.vertices.push_back({x, y0});
+    }
+    m_mesh.vertices.push_back({x, y0});
+    m_mesh.vertices.push_back({0, y2});
+  }
+  #else
   uint16_t index = 0;
-
   for (uint32_t col = 0; col < resolution; col++) {
     coord_t y = static_cast<coord_t>(col * 255 / resolution);
     for (uint32_t row = 0; row < resolution; row++) {
@@ -78,6 +94,7 @@ void TerrainModel::generateMesh(uint32_t resolution) {
       index++;
     }
   }
+  #endif
 }
 
 void TerrainModel::render(RenderState &rs, const Camera& camera) {
@@ -94,13 +111,21 @@ void TerrainModel::render(RenderState &rs, const Camera& camera) {
 
   if (m_hullIsOn) {
     m_shader.setUniformf(rs, m_tintLocation, glm::vec4(1.f, 1.f, 1.f, 1.f));
+    #if USE_TRIANGLE_STRIP
+    m_mesh.setDrawMode(GL_TRIANGLE_STRIP);
+    #else
     m_mesh.setDrawMode(GL_TRIANGLES);
+    #endif
     m_mesh.draw(rs, m_shader);
   }
 
   if (m_gridIsOn) {
     m_shader.setUniformf(rs, m_tintLocation, glm::vec4(1.f, .2f, .2f, 1.f));
+    #if USE_TRIANGLE_STRIP
+    m_mesh.setDrawMode(GL_LINE_STRIP);
+    #else
     m_mesh.setDrawMode(GL_LINES);
+    #endif
     m_mesh.draw(rs, m_shader);
   }
 
