@@ -59,14 +59,16 @@ void TerrainModel::generateMesh(uint32_t resolution) {
 
   m_mesh.reset();
 
+  const coord_t coord_max = static_cast<coord_t>(-1);
+
   #if USE_TRIANGLE_STRIP
   for (uint32_t col = 0; col < resolution; col++) {
-    uint8_t y0 = static_cast<uint8_t>(col * 255 / resolution);
-    uint8_t y1 = static_cast<uint8_t>((col + 1) * 255 / resolution);
-    uint8_t y2 = static_cast<uint8_t>((col + 2) * 255 / resolution);
-    uint8_t x = 0;
-    for (uint32_t row = 0; row < resolution; row++) {
-      x = static_cast<uint8_t>(row * 255 / resolution);
+    coord_t y0 = static_cast<coord_t>(col * coord_max / resolution);
+    coord_t y1 = static_cast<coord_t>((col + 1) * coord_max / resolution);
+    coord_t y2 = static_cast<coord_t>((col + 2) * coord_max / resolution);
+    coord_t x = 0;
+    for (uint32_t row = 0; row <= resolution; row++) {
+      x = static_cast<coord_t>(row * coord_max / resolution);
       m_mesh.vertices.push_back({x, y1});
       m_mesh.vertices.push_back({x, y0});
     }
@@ -75,20 +77,20 @@ void TerrainModel::generateMesh(uint32_t resolution) {
   }
   #else
   uint16_t index = 0;
-  for (uint32_t col = 0; col < resolution; col++) {
-    coord_t y = static_cast<coord_t>(col * 255 / resolution);
-    for (uint32_t row = 0; row < resolution; row++) {
-      coord_t x = static_cast<coord_t>(row * 255 / resolution);
+  for (uint32_t col = 0; col <= resolution; col++) {
+    coord_t y = static_cast<coord_t>(col * coord_max / resolution);
+    for (uint32_t row = 0; row <= resolution; row++) {
+      coord_t x = static_cast<coord_t>(row * coord_max / resolution);
       m_mesh.vertices.push_back({x, y});
 
-      if (row < resolution - 1 && col < resolution - 1) {
+      if (row < resolution && col < resolution) {
         m_mesh.indices.push_back(index);
         m_mesh.indices.push_back(index + 1);
-        m_mesh.indices.push_back(index + resolution);
+        m_mesh.indices.push_back(index + resolution + 1);
 
         m_mesh.indices.push_back(index + 1);
+        m_mesh.indices.push_back(index + resolution + 2);
         m_mesh.indices.push_back(index + resolution + 1);
-        m_mesh.indices.push_back(index + resolution);
       }
 
       index++;
