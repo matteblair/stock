@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 2.8.12)
 project(stock)
 
-set(CMAKE_CXX_STANDARD 11)
+list(APPEND CMAKE_CXX_FLAGS -std=c++11)
 
 include(deps/deps.cmake)
 
