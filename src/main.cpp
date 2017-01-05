@@ -3,6 +3,7 @@
 #include "gl/Mesh.hpp"
 #include "gl/RenderState.hpp"
 #include "gl/ShaderProgram.hpp"
+#include "io/UrlSession.hpp"
 #include "view/Camera.hpp"
 #include <GLFW/glfw3.h>
 
@@ -30,6 +31,12 @@ struct Vertex {
   float x, y, z;
   unsigned int color;
 };
+
+static UrlSession::Environment urlSessionEnvironment;
+
+void urlCallback(const UrlSession::Response& response, void* user) {
+  Log::df("Received URL response! Data length: %d\n", response.data.size());
+}
 
 int main(void) {
 
@@ -76,6 +83,9 @@ int main(void) {
   camera.setPosition(0.f, -3.f, 0.f);
 
   Log::setLevel(Log::Level::VERBOSE);
+
+  UrlSession urlSession({});
+  urlSession.addRequest("http://vector.mapzen.com/osm/all/16/17583/24208.json", urlCallback, nullptr);
 
   // Loop until the user closes the window.
   while (!glfwWindowShouldClose(window)) {

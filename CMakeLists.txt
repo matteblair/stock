@@ -15,6 +15,7 @@ set(STOCK_SOURCE_FILES
     src/io/File.cpp
     src/io/Log.cpp
     src/io/Url.cpp
+    src/io/UrlSession.cpp
     src/view/Camera.cpp
     src/main.cpp
     )
