@@ -60,6 +60,7 @@ target_link_libraries(stock PUBLIC
     ${GLFW_LIBRARIES}
     ${OPENGL_LIBRARIES}
     imgui
+	curl
 )
 
 add_executable(app
