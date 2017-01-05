@@ -29,6 +29,8 @@ set(STOCK_SOURCES
     src/io/File.cpp
     src/io/Log.hpp
     src/io/Log.cpp
+    src/io/Url.hpp
+    src/io/Url.cpp
     src/transform/Transform.hpp
     src/transform/Transform.cpp
     src/view/Camera.hpp
