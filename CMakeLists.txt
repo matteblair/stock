@@ -14,6 +14,7 @@ set(STOCK_SOURCE_FILES
     src/gl/VertexLayout.cpp
     src/io/File.cpp
     src/io/Log.cpp
+    src/io/Url.cpp
     src/view/Camera.cpp
     src/main.cpp
     )
