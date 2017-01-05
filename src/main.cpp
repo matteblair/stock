@@ -85,7 +85,6 @@ int main(void) {
   rs.reset();
   rs.clearColor(0.f, 0.f, 0.f, 1.f);
 
-
   Camera camera(1024.f, 768.f, Camera::Options());
   camera.transform().position() = { 3.f, 0.f, 0.f };
 
