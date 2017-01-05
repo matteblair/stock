@@ -4,6 +4,7 @@
 #include "gl/Mesh.hpp"
 #include "gl/RenderState.hpp"
 #include "gl/ShaderProgram.hpp"
+#include "io/UrlSession.hpp"
 #include "view/Camera.hpp"
 #include "ImGuiImpl.hpp"
 #include <GLFW/glfw3.h>
@@ -88,7 +89,14 @@ int main(void) {
   Camera camera(1024.f, 768.f, Camera::Options());
   camera.transform().position() = { 3.f, 0.f, 0.f };
 
-  Log::setLevel(Log::Level::VERBOSE);
+  Log::setLevel(Log::Level::DEBUGGING);
+
+  UrlSession::globalInit();
+
+  UrlSession urlSession({});
+  urlSession.addRequest("http://vector.mapzen.com/osm/all/16/17583/24208.json", [](UrlSession::Response response) {
+    Log::df("Received URL response! Data length: %d\n", response.data.size());
+  });
 
   bool isPaused = false;
 

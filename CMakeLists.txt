@@ -31,6 +31,8 @@ set(STOCK_SOURCES
     src/io/Log.cpp
     src/io/Url.hpp
     src/io/Url.cpp
+    src/io/UrlSession.hpp
+    src/io/UrlSession.cpp
     src/transform/Transform.hpp
     src/transform/Transform.cpp
     src/view/Camera.hpp
