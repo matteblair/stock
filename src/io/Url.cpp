@@ -56,27 +56,27 @@ bool Url::isEmpty() const {
 }
 
 bool Url::isAbsolute() const {
-    return (flags & IS_ABSOLUTE);
+    return (flags & IS_ABSOLUTE) > 0;
 }
 
 bool Url::isStandardized() const {
-    return (flags & IS_STANDARDIZED);
+    return (flags & IS_STANDARDIZED) > 0;
 }
 
 bool Url::hasHttpScheme() const {
-    return (flags & HAS_HTTP_SCHEME);
+    return (flags & HAS_HTTP_SCHEME) > 0;
 }
 
 bool Url::hasFileScheme() const {
-    return (flags & HAS_FILE_SCHEME);
+    return (flags & HAS_FILE_SCHEME) > 0;
 }
 
 bool Url::hasDataScheme() const {
-    return (flags & HAS_DATA_SCHEME);
+    return (flags & HAS_DATA_SCHEME) > 0;
 }
 
 bool Url::hasBase64Data() const {
-    return (flags & HAS_BASE64_DATA);
+    return (flags & HAS_BASE64_DATA) > 0;
 }
 
 bool Url::hasScheme() const {
