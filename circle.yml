@@ -1,0 +1,4 @@
+test:
+  override:
+    - cmake .
+    - cmake --build .
