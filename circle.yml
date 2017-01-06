@@ -1,4 +1,12 @@
+machine:
+  environment:
+    CC: clang
+    CXX: clang++
+dependencies:
+  pre:
+    - sudo apt-get update -qq
+    - sudo apt-get install clang ninja-build xorg-dev
 test:
   override:
-    - cmake .
+    - cmake . -GNinja
     - cmake --build .
