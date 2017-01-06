@@ -4,10 +4,7 @@ sudo: false
 dist: trusty
 addons:
   apt:
-    sources:
-      - kubuntu-backports
     packages:
-      - cmake
       - ninja-build
       - xorg-dev
 script:
