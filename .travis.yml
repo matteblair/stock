@@ -1,6 +1,7 @@
 language: cpp
 compiler: clang
 sudo: false
+dist: trusty
 addons:
   apt:
     sources:
@@ -8,8 +9,7 @@ addons:
     packages:
       - cmake
       - ninja-build
-before_script:
-  - git submodule update --init
+      - xorg-dev
 script:
   - mkdir build
   - cd build
