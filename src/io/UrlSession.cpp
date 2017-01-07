@@ -10,35 +10,43 @@
 
 namespace stock {
 
-void UrlSession::globalInit() {
+UrlSession::Environment::Environment() {
   curl_global_init(CURL_GLOBAL_ALL);
+}
+
+UrlSession::Environment::~Environment() {
+  curl_global_cleanup();
+}
+
+UrlSession::Response getCanceledResponse() {
+  UrlSession::Response response;
+  response.canceled = true;
+  return response;
 }
 
 UrlSession::UrlSession(Options options) : m_options(options) {
   assert(options.numberOfThreads > 0);
   // Start the curl threads.
   m_keepRunning = true;
+  m_tasks.resize(options.numberOfThreads);
   for (uint32_t i = 0; i < options.numberOfThreads; i++) {
-    m_threads.emplace_back(&UrlSession::curlLoop, this);
+    m_threads.emplace_back(&UrlSession::curlLoop, this, i);
   }
 }
 
 UrlSession::~UrlSession() {
   // Make all tasks cancelled.
   {
-    Response cancelledResponse;
-    cancelledResponse.canceled = true;
     std::lock_guard<std::mutex> lock(m_requestMutex);
-    for (auto& request : m_pendingRequests) {
+    for (auto& request : m_requests) {
       if (request.callback) {
-        request.callback(cancelledResponse);
+        auto response = getCanceledResponse();
+        request.callback(response);
       }
     }
-    m_pendingRequests.clear();
-    for (auto& request : m_activeRequests) {
-      if (request.response) {
-        request.response->canceled = true;
-      }
+    m_requests.clear();
+    for (auto& task : m_tasks) {
+      task.response.canceled = true;
     }
   }
   // Stop the curl threads.
@@ -51,15 +59,12 @@ UrlSession::~UrlSession() {
 
 UrlSession::RequestHandle UrlSession::addRequest(std::string url, CompletionCallback onComplete) {
   // Create a new request.
-  Request request;
-  request.url = url;
-  request.callback = onComplete;
-  request.handle = ++m_requestIndex;
+  Request request = { url, onComplete, ++m_requestIndex };
   // Add the request to our list.
   {
     // Lock the mutex to prevent concurrent modification of the list by the curl loop thread.
     std::lock_guard<std::mutex> lock(m_requestMutex);
-    m_pendingRequests.push_back(request);
+    m_requests.push_back(request);
   }
   // Notify a thread to start the transfer.
   m_requestCondition.notify_one();
@@ -70,24 +75,22 @@ UrlSession::RequestHandle UrlSession::addRequest(std::string url, CompletionCall
 void UrlSession::cancelRequest(RequestHandle handle) {
   std::lock_guard<std::mutex> lock(m_requestMutex);
   // First check the pending request list.
-  for (auto it = m_pendingRequests.begin(), end = m_pendingRequests.end(); it != end; ++it) {
+  for (auto it = m_requests.begin(), end = m_requests.end(); it != end; ++it) {
     auto& request = *it;
     if (request.handle == handle) {
       // Found the request! Now run its callback and remove it.
-      Response response;
-      response.canceled = true;
+      auto response = getCanceledResponse();
       if (request.callback) {
         request.callback(response);
       }
-      m_pendingRequests.erase(it);
+      m_requests.erase(it);
       return;
     }
   }
   // Next check the active request list.
-  for (auto it = m_activeRequests.begin(), end = m_activeRequests.end(); it != end; ++it) {
-    auto& request = *it;
-    if (request.response) {
-      request.response->canceled = true;
+  for (auto& task : m_tasks) {
+    if (task.request.handle == handle) {
+      task.response.canceled = true;
     }
   }
 }
@@ -109,17 +112,16 @@ int curlProgressCallback(void* user, double dltotal, double dlnow, double ultota
   return static_cast<int>(response->canceled);
 }
 
-void UrlSession::curlLoop() {
-  auto id = std::hash<std::thread::id>()(std::this_thread::get_id());
-  Log::vf("curlLoop starting on thread: %u\n", id);
-  // Set up a response for reuse.
-  Response response;
+void UrlSession::curlLoop(uint32_t index) {
+  assert(m_tasks.size() > index);
+  Task& task = m_tasks[index];
+  Log::vf("curlLoop %u starting\n", index);
   // Set up an easy handle for reuse.
   auto handle = curl_easy_init();
   curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &curlWriteCallback);
-  curl_easy_setopt(handle, CURLOPT_WRITEDATA, &response);
+  curl_easy_setopt(handle, CURLOPT_WRITEDATA, &task.response);
   curl_easy_setopt(handle, CURLOPT_PROGRESSFUNCTION, &curlProgressCallback);
-  curl_easy_setopt(handle, CURLOPT_PROGRESSDATA, &response);
+  curl_easy_setopt(handle, CURLOPT_PROGRESSDATA, &task.response);
   curl_easy_setopt(handle, CURLOPT_NOPROGRESS, 0L);
   curl_easy_setopt(handle, CURLOPT_HEADER, 0L);
   curl_easy_setopt(handle, CURLOPT_VERBOSE, 0L);
@@ -128,29 +130,28 @@ void UrlSession::curlLoop() {
   curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, m_options.requestTimeoutMs);
   // Loop until the session is destroyed.
   while (m_keepRunning) {
-    Request* request = nullptr;
+    bool haveRequest = false;
     // Wait until the condition variable is notified.
     {
       std::unique_lock<std::mutex> lock(m_requestMutex);
-      if (m_pendingRequests.empty()) {
-        Log::vf("curlLoop waiting on thread: %u\n", id);
+      if (m_requests.empty()) {
+        Log::vf("curlLoop %u waiting\n", index);
         m_requestCondition.wait(lock);
       }
-      Log::vf("curlLoop notified on thread: %u\n", id);
+      Log::vf("curlLoop %u notified\n", index);
       // Try to get a request from the list.
-      if (!m_pendingRequests.empty()) {
-        // Transfer the first request from the pending list to the end of the active list.
-        m_activeRequests.splice(m_activeRequests.end(), m_pendingRequests, m_pendingRequests.begin());
-        request = &m_activeRequests.back();
-        request->response = &response;
+      if (!m_requests.empty()) {
+        // Take the first request from our list.
+        task.request = m_requests.front();
+        m_requests.erase(m_requests.begin());
+        haveRequest = true;
       }
     }
-    if (request) {
-      Log::vf("curlLoop starting request on thread: %u\n", id);
-      // Got a request!
+    if (haveRequest) {
       // Configure the easy handle.
-      const char* url = request->url.data();
+      const char* url = task.request.url.data();
       curl_easy_setopt(handle, CURLOPT_URL, url);
+      Log::vf("curlLoop %u starting request for url: %s\n", index, url);
       // Perform the request.
       auto result = curl_easy_perform(handle);
       // Get the result status code.
@@ -158,26 +159,26 @@ void UrlSession::curlLoop() {
       curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &httpStatus);
       // Handle success or error.
       if (result == CURLE_OK && httpStatus >= 200 && httpStatus < 300) {
-        Log::vf("curlLoop easy_perform succeeded with http status: %d for url: %s\n", httpStatus, url);
-        response.successful = true;
+        Log::vf("curlLoop %u succeeded with http status: %d for url: %s\n", index, httpStatus, url);
+        task.response.successful = true;
       } else if (result == CURLE_ABORTED_BY_CALLBACK) {
-        Log::vf("curlLoop easy_perform aborted by callback of url: %s\n", url);
-        response.successful = false;
+        Log::vf("curlLoop %u request aborted for url: %s\n", index, url);
+        task.response.successful = false;
       } else {
-        Log::ef("curlLoop easy_perform failed with code: %d and http status: %d for url: %s\n", result, httpStatus, url);
-        response.successful = false;
+        Log::ef("curlLoop %u errored with code: %d and http status: %d for url: %s\n", index, result, httpStatus, url);
+        task.response.successful = false;
       }
-      Log::vf("curlLoop completed request on thread: %u\n", id);
-      if (request->callback) {
-        request->callback(response);
+      if (task.request.callback) {
+        Log::vf("curlLoop %u performing request callback\n", index);
+        task.request.callback(task.response);
       }
     }
     // Reset the response.
-    response.data.clear();
-    response.canceled = false;
-    response.successful = false;
+    task.response.data.clear();
+    task.response.canceled = false;
+    task.response.successful = false;
   }
-  Log::vf("curlLoop exiting on thread: %u\n", id);
+  Log::vf("curlLoop %u exiting\n", index);
   // Clean up our easy handle.
   curl_easy_cleanup(handle);
 }
