@@ -32,6 +32,8 @@ struct Vertex {
   unsigned int color;
 };
 
+static UrlSession::Environment urlSessionEnvironment;
+
 int main(void) {
 
   GLFWwindow* window;
@@ -77,8 +79,6 @@ int main(void) {
   camera.setPosition(0.f, -3.f, 0.f);
 
   Log::setLevel(Log::Level::DEBUGGING);
-
-  UrlSession::globalInit();
 
   UrlSession urlSession({});
   urlSession.addRequest("http://vector.mapzen.com/osm/all/16/17583/24208.json", [](UrlSession::Response response) {

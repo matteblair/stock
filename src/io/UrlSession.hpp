@@ -5,7 +5,6 @@
 #pragma once
 #include <condition_variable>
 #include <functional>
-#include <list>
 #include <mutex>
 #include <thread>
 #include <string>
@@ -16,6 +15,11 @@ namespace stock {
 class UrlSession {
 
 public:
+
+  struct Environment {
+    Environment();
+    ~Environment();
+  };
 
   struct Options {
     uint32_t numberOfThreads = 4;
@@ -33,9 +37,6 @@ public:
 
   using RequestHandle = uint32_t;
 
-  // Must be called at least once before any session is created or used.
-  static void globalInit();
-
   UrlSession(Options options);
   ~UrlSession();
 
@@ -49,14 +50,18 @@ private:
     std::string url;
     CompletionCallback callback;
     RequestHandle handle;
-    Response* response = nullptr;
   };
 
-  void curlLoop();
+  struct Task {
+    Request request;
+    Response response;
+  };
+
+  void curlLoop(uint32_t index);
 
   std::vector<std::thread> m_threads;
-  std::list<Request> m_pendingRequests;
-  std::list<Request> m_activeRequests;
+  std::vector<Task> m_tasks;
+  std::vector<Request> m_requests;
   std::condition_variable m_requestCondition;
   std::mutex m_requestMutex;
   Options m_options;
