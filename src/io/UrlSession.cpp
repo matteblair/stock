@@ -10,12 +10,16 @@
 
 namespace stock {
 
+static uint32_t globalUrlSessionEnvironments = 0;
+
 UrlSession::Environment::Environment() {
   curl_global_init(CURL_GLOBAL_ALL);
+  globalUrlSessionEnvironments++;
 }
 
 UrlSession::Environment::~Environment() {
   curl_global_cleanup();
+  globalUrlSessionEnvironments--;
 }
 
 UrlSession::Response getCanceledResponse() {
@@ -25,6 +29,7 @@ UrlSession::Response getCanceledResponse() {
 }
 
 UrlSession::UrlSession(Options options) : m_options(options) {
+  assert(globalUrlSessionEnvironments > 0);
   assert(options.numberOfThreads > 0);
   // Start the curl threads.
   m_keepRunning = true;
@@ -116,6 +121,8 @@ void UrlSession::curlLoop(uint32_t index) {
   assert(m_tasks.size() > index);
   Task& task = m_tasks[index];
   Log::vf("curlLoop %u starting\n", index);
+  // Create a buffer for curl error messages.
+  char curlErrorString[CURL_ERROR_SIZE];
   // Set up an easy handle for reuse.
   auto handle = curl_easy_init();
   curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, &curlWriteCallback);
@@ -126,6 +133,7 @@ void UrlSession::curlLoop(uint32_t index) {
   curl_easy_setopt(handle, CURLOPT_HEADER, 0L);
   curl_easy_setopt(handle, CURLOPT_VERBOSE, 0L);
   curl_easy_setopt(handle, CURLOPT_ACCEPT_ENCODING, "gzip");
+  curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, curlErrorString);
   curl_easy_setopt(handle, CURLOPT_CONNECTTIMEOUT_MS, m_options.connectionTimeoutMs);
   curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, m_options.requestTimeoutMs);
   // Loop until the session is destroyed.
@@ -165,7 +173,7 @@ void UrlSession::curlLoop(uint32_t index) {
         Log::vf("curlLoop %u request aborted for url: %s\n", index, url);
         task.response.successful = false;
       } else {
-        Log::ef("curlLoop %u errored with code: %d and http status: %d for url: %s\n", index, result, httpStatus, url);
+        Log::ef("curlLoop %u failed: '%s' with http status: %d for url: %s\n", index, curlErrorString, httpStatus, url);
         task.response.successful = false;
       }
       if (task.request.callback) {
