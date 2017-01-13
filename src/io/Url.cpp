@@ -1,4 +1,5 @@
 #include "io/Url.hpp"
+#include <algorithm>
 #include <cstdlib>
 #include <cassert>
 
