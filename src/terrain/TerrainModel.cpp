@@ -2,7 +2,7 @@
 // Created by Matt Blair on 12/18/16.
 //
 
-#include "TerrainModel.hpp"
+#include "terrain/TerrainModel.hpp"
 
 namespace stock {
 
@@ -15,7 +15,8 @@ uniform sampler2D u_elevationTex;
 void main() {
     vec4 encoded = texture2D(u_elevationTex, a_position);
     float elevation = (encoded.r * 256. * 256. + encoded.g * 256. + encoded.b) - 32768.;
-    vec4 position = vec4(a_position, elevation / 19568., 1.);
+    float scale = u_mvp[0][0];
+    vec4 position = vec4(a_position, elevation / scale, 1.);
     v_uv = a_position;
     gl_Position = u_mvp * position;
 }
@@ -43,14 +44,6 @@ TerrainModel::TerrainModel()
       m_mvpLocation("u_mvp"),
       m_tintLocation("u_tint") {
   m_mesh.setVertexLayout(VertexLayout({ VertexAttribute("a_position", 2, GL_UNSIGNED_BYTE, GL_TRUE) }));
-}
-
-void TerrainModel::loadElevationTexture(std::vector<uint8_t> data) {
-  m_elevationTexture = Texture(Pixmap(data), Texture::Options());
-}
-
-void TerrainModel::loadNormalTexture(std::vector<uint8_t> data) {
-  m_normalTexture = Texture(Pixmap(data), Texture::Options());
 }
 
 void TerrainModel::generateMesh(uint32_t resolution) {
@@ -99,15 +92,20 @@ void TerrainModel::generateMesh(uint32_t resolution) {
   #endif
 }
 
-void TerrainModel::render(RenderState &rs, const Camera& camera) {
+void TerrainModel::render(RenderState &rs, TerrainData& data, const TileView& view) {
 
-  m_elevationTexture.bind(rs, 0);
+  if (!data.isLoaded()) {
+    return;
+  }
+
+  data.elevationTexture().bind(rs, 0);
   m_shader.setUniformi(rs, m_elevTexLocation, 0);
 
-  m_normalTexture.bind(rs, 1);
+  data.normalTexture().bind(rs, 1);
   m_shader.setUniformi(rs, m_normalTexLocation, 1);
 
-  m_shader.setUniformMatrix4f(rs, m_mvpLocation, camera.viewProjectionMatrix());
+  auto mvpMatrix = view.getModelViewProjectionMatrix(data.address());
+  m_shader.setUniformMatrix4f(rs, m_mvpLocation, mvpMatrix);
 
   if (m_hullIsOn) {
     m_shader.setUniformf(rs, m_tintLocation, glm::vec4(1.f, 1.f, 1.f, 1.f));
@@ -152,8 +150,6 @@ uint32_t TerrainModel::decreaseResolution() {
 void TerrainModel::dispose(RenderState& rs) {
   m_mesh.dispose(rs);
   m_shader.dispose(rs);
-  m_elevationTexture.dispose(rs);
-  m_normalTexture.dispose(rs);
 }
 
 } // namespace stock

@@ -6,7 +6,9 @@
 #include "gl/Mesh.hpp"
 #include "gl/ShaderProgram.hpp"
 #include "gl/Texture.hpp"
+#include "terrain/TerrainData.hpp"
 #include "view/Camera.hpp"
+#include "TileView.hpp"
 
 namespace stock {
 
@@ -23,12 +25,9 @@ public:
 
   TerrainModel();
 
-  void loadElevationTexture(std::vector<uint8_t> elevationImageData);
-  void loadNormalTexture(std::vector<uint8_t> normalData);
-
   void generateMesh(uint32_t resolution);
 
-  void render(RenderState& rs, const Camera& camera);
+  void render(RenderState& rs, TerrainData& data, const TileView& view);
 
   void toggleGrid();
   void toggleHull();
@@ -39,14 +38,12 @@ public:
 
 protected:
 
-  Mesh <Vertex> m_mesh;
+  Mesh<Vertex> m_mesh;
   ShaderProgram m_shader;
   UniformLocation m_elevTexLocation;
   UniformLocation m_normalTexLocation;
   UniformLocation m_mvpLocation;
   UniformLocation m_tintLocation;
-  Texture m_elevationTexture;
-  Texture m_normalTexture;
   uint32_t m_resolution = 0;
   bool m_gridIsOn = false;
   bool m_hullIsOn = true;

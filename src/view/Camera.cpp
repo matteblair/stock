@@ -105,8 +105,40 @@ void Camera::lookAt(const glm::vec3& target) {
   m_transform.lookAt(target, m_up);
 }
 
-void Camera::apply(ShaderProgram& shader) {
-  // TODO
+Camera::Ray Camera::getRayFromViewport(float x, float y) {
+  Ray ray;
+  glm::vec2 ndc;
+  glm::vec2 nearHalfSize;
+  glm::vec2 farHalfSize;
+
+  // Re-scale the input window coordinates to normalized device coordinates.
+  ndc.x = 2.f * (x / m_width) - 1.f;
+  ndc.y = 1.f - 2.f * (y / m_height);
+
+  // Calculate the half-size of the near and far planes.
+  switch (m_options.type) {
+  case Type::PERSPECTIVE:
+    nearHalfSize.y = tanf(m_options.fov / 2.f) * m_options.near;
+    nearHalfSize.x = nearHalfSize.y * (m_width / m_height);
+    farHalfSize = nearHalfSize * (m_options.far / m_options.near);
+    break;
+  case Type::ORTHOGRAPHIC:
+    nearHalfSize.y = .5f * m_height;
+    nearHalfSize.x = .5f * m_width;
+    farHalfSize = nearHalfSize;
+    break;
+  }
+
+  glm::vec3 forward = m_transform.getDirection();
+  glm::vec3 right = glm::normalize(glm::cross(forward, m_up));
+  glm::vec3 up = glm::normalize(glm::cross(forward, right));
+
+  glm::vec3 destination = m_options.far * forward + ndc.x * farHalfSize.x * right + ndc.y * farHalfSize.y * up;
+
+  ray.origin = m_options.near * forward + ndc.x * nearHalfSize.x * right + ndc.y * nearHalfSize.y * up;
+  ray.direction = destination - ray.origin;
+
+  return ray;
 }
 
 } // namespace stock

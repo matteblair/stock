@@ -8,6 +8,7 @@
 #include "io/UrlSession.hpp"
 #include "view/Camera.hpp"
 #include "terrain/TerrainModel.hpp"
+#include "terrain/TileView.hpp"
 #include "ImGuiImpl.hpp"
 #include <GLFW/glfw3.h>
 
@@ -15,8 +16,10 @@ using namespace stock;
 
 struct AppData {
   RenderState rs;
-  Camera camera = Camera(1024.f, 768.f, Camera::Options());
-  TerrainModel terrain;
+  // TerrainData data = TerrainData(TileAddress(3036, 1716, 12));
+  TerrainModel model;
+  TileView view = TileView(Camera(1024.f, 768.f, Camera::Options()));
+  std::vector<TerrainData> terrainTiles;
 };
 
 void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -26,16 +29,16 @@ void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
   if (action == GLFW_PRESS || action == GLFW_REPEAT) {
     switch (key) {
     case GLFW_KEY_G:
-      app->terrain.toggleGrid();
+      app->model.toggleGrid();
       break;
     case GLFW_KEY_H:
-      app->terrain.toggleHull();
+      app->model.toggleHull();
       break;
     case GLFW_KEY_UP:
-      Log::df("Resolution increased to: %d\n", app->terrain.increaseResolution());
+      Log::df("Resolution increased to: %d\n", app->model.increaseResolution());
       break;
     case GLFW_KEY_DOWN:
-      Log::df("Resolution decreased to: %d\n", app->terrain.decreaseResolution());
+      Log::df("Resolution decreased to: %d\n", app->model.decreaseResolution());
       break;
     }
   }
@@ -64,6 +67,8 @@ int main(void) {
 
   gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress);
 
+  Log::setLevel(Log::Level::DEBUGGING);
+
   // Setup ImGui binding
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -80,22 +85,37 @@ int main(void) {
   app.rs.depthTest(GL_TRUE);
   app.rs.culling(GL_TRUE);
 
-  app.camera.transform().position() = {0.f, -.1f, .6f};
+  app.model.generateMesh(64);
 
-  app.terrain.loadElevationTexture(File("elevation.png").readAll());
-  app.terrain.loadNormalTexture(File("normals.png").readAll());
-  app.terrain.generateMesh(64);
+  app.view.camera().transform().setDirection({0.f, 0.f, -1.f});
+  app.view.camera().setUpVector({0.f, 1.f, 0.f});
+  app.view.setPosition(LngLat(-121.9320666, 37.8719037));
+  app.view.setZoom(12);
+  app.view.update();
 
-  Log::setLevel(Log::Level::DEBUGGING);
+  auto tiles = app.view.visibleTiles();
+
+  UrlSession urlSession({});
+
+  app.terrainTiles.reserve(tiles.size()); // Can't reallocate in this loop!
+  for (const auto& tile : tiles) {
+    app.terrainTiles.emplace_back(tile);
+    auto& terrainData = app.terrainTiles.back();
+    auto elevationDataUrl = terrainData.populateUrlTemplate("https://tile.mapzen.com/mapzen/terrain/v1/terrarium/%d/%d/%d.png");
+    urlSession.addRequest(elevationDataUrl, [&](UrlSession::Response response) {
+      Log::df("Received elevation URL response! Data length: %d\n", response.data.size());
+      terrainData.loadElevationData(response.data);
+    });
+    auto normalDataUrl = terrainData.populateUrlTemplate("https://tile.mapzen.com/mapzen/terrain/v1/normal/%d/%d/%d.png");
+    urlSession.addRequest(normalDataUrl, [&](UrlSession::Response response) {
+      Log::df("Received normal URL response! Data length: %d\n", response.data.size());
+      terrainData.loadNormalData(response.data);
+    });
+  }
 
   glfwSetWindowUserPointer(window, &app);
 
   glfwSetKeyCallback(window, &onKeyEvent);
-
-  UrlSession urlSession({});
-  urlSession.addRequest("http://vector.mapzen.com/osm/all/16/17583/24208.json", [](UrlSession::Response response) {
-    Log::df("Received URL response! Data length: %d\n", response.data.size());
-  });
 
   glm::dvec2 mousePosition;
 
@@ -119,35 +139,37 @@ int main(void) {
 
     CHECK_GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-    static const glm::vec3 point = {.5f, .5f, 0.f}, axis = {0.f, 0.f, 1.f};
+    for (auto& tile : app.terrainTiles) {
+      app.model.render(app.rs, tile, app.view);
+    }
 
-    app.terrain.render(app.rs, app.camera);
+    static const glm::vec3 point = {0.f, 0.f, 0.f}, axis = {0.f, 0.f, 1.f};
 
     glm::dvec2 lastMousePosition = mousePosition;
     glfwGetCursorPos(window, &mousePosition.x, &mousePosition.y);
     auto mouseDelta = mousePosition - lastMousePosition;
     auto mouseDistance = glm::length(mouseDelta);
     auto mouseScreenVector = (float)mouseDelta.x * Transform::RIGHT - (float)mouseDelta.y * Transform::UP;
-    auto mouseWorldVector = app.camera.transform().convertLocalVectorToWorld(mouseScreenVector);
-    auto orbitAxis = glm::cross(app.camera.transform().getDirection(), mouseWorldVector);
+    auto mouseWorldVector = app.view.camera().transform().convertLocalVectorToWorld(mouseScreenVector);
+    auto orbitAxis = glm::cross(app.view.camera().transform().getDirection(), mouseWorldVector);
     if (glfwGetMouseButton(window, 0)) {
       if (glm::abs(mouseDistance) > 0.0001) {
-        app.camera.transform().orbit(point, orbitAxis, mouseDistance * 0.01);
-        app.camera.lookAt(point);
+        app.view.camera().transform().orbit(point, orbitAxis, mouseDistance * 0.01);
+        app.view.camera().lookAt(point);
       }
     }
 
     // ImGui::ShowDemoWindow();
 
     if (ImGui::TreeNode("Camera Transform")) {
-      auto position = app.camera.transform().position();
-      auto direction = app.camera.transform().getDirection();
+      auto position = app.view.camera().transform().position();
+      auto direction = app.view.camera().transform().getDirection();
       ImGui::InputFloat3("Position", &position.x, 4);
       ImGui::InputFloat3("Direction", &direction.x, 4);
       ImGui::TreePop();
     }
 
-    DebugDraw::cameraMatrix(app.camera.viewProjectionMatrix());
+    DebugDraw::cameraMatrix(app.view.camera().viewProjectionMatrix());
     DebugDraw::point(app.rs, {1.f, 0.f, 0.f});
     DebugDraw::point(app.rs, {0.f, 1.f, 0.f});
     DebugDraw::point(app.rs, {0.f, 0.f, 1.f});
@@ -168,7 +190,11 @@ int main(void) {
     glfwSwapBuffers(window);
   }
 
-  app.terrain.dispose(app.rs);
+  app.model.dispose(app.rs);
+
+  for (auto& tile : app.terrainTiles) {
+    tile.dispose(app.rs);
+  }
 
   DebugDraw::dispose(app.rs);
 

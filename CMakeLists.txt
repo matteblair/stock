@@ -37,8 +37,16 @@ set(STOCK_SOURCES
     src/transform/Transform.cpp
     src/view/Camera.hpp
     src/view/Camera.cpp
+    src/terrain/LngLat.hpp
+    src/terrain/LngLat.cpp
+    src/terrain/TerrainData.hpp
+    src/terrain/TerrainData.cpp
     src/terrain/TerrainModel.hpp
     src/terrain/TerrainModel.cpp
+    src/terrain/TileAddress.hpp
+    src/terrain/TileAddress.cpp
+    src/terrain/TileView.hpp
+    src/terrain/TileView.cpp
     src/ImGuiImpl.hpp
     src/ImGuiImpl.cpp
 )

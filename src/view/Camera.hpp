@@ -27,6 +27,11 @@ public:
     Type type = Type::PERSPECTIVE;
   };
 
+  struct Ray {
+    glm::vec3 origin;
+    glm::vec3 direction;
+  };
+
   Camera(float width, float height, Options options);
 
   float width() const;
@@ -61,7 +66,7 @@ public:
 
   void lookAt(const glm::vec3& target);
 
-  void apply(ShaderProgram& shader);
+  Ray getRayFromViewport(float x, float y);
 
 private:
   Transform m_transform;
