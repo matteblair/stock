@@ -45,12 +45,9 @@ public:
   size_t getTotalBufferSize() const;
 
 protected:
-  bool checkValidity(RenderState& rs);
 
+  // Vertex layout
   VertexLayout m_vertexLayout;
-
-  // Generation in which this mesh's GL handles were created
-  int m_generation = -1;
 
   // Vertex data
   size_t m_vertexCount = 0;

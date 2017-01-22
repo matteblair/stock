@@ -68,7 +68,7 @@ int main(void) {
   mesh.indices = {0, 1, 2, 0, 3, 1, 0, 2, 3, 1, 3, 2};
 
   RenderState rs;
-  rs.configure();
+  rs.reset();
   rs.clearColor(0.f, 0.f, 0.f, 1.f);
   rs.depthTest(GL_TRUE);
 

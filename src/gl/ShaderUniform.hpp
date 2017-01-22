@@ -15,8 +15,9 @@ public:
 private:
   const std::string name;
 
-  mutable int location = -1;
-  mutable int generation = -1;
+  // Location values are > 0 for valid locations and -1 for errors.
+  // We set the initial value to none of these.
+  mutable int location = -2;
 
   friend class ShaderProgram;
 };

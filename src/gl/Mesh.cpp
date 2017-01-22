@@ -65,14 +65,10 @@ void MeshBase::upload(RenderState& rs) {
     CHECK_GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBytes, m_glIndexData, m_hint));
   }
 
-  m_generation = rs.generation();
-
   m_isUploaded = true;
 }
 
 bool MeshBase::draw(RenderState& rs, ShaderProgram& shader) {
-
-  checkValidity(rs);
 
   // Ensure that geometry is buffered into GPU.
   if (!m_isUploaded) {
@@ -104,19 +100,6 @@ bool MeshBase::draw(RenderState& rs, ShaderProgram& shader) {
     CHECK_GL(glDrawElements(m_drawMode, m_indexCount, GL_UNSIGNED_SHORT, 0));
   } else if (m_vertexCount > 0) {
     CHECK_GL(glDrawArrays(m_drawMode, 0, m_vertexCount));
-  }
-
-  return true;
-}
-
-bool MeshBase::checkValidity(RenderState& rs) {
-
-  if (!rs.isValidGeneration(m_generation)) {
-    m_isUploaded = false;
-    m_glVertexBuffer = 0;
-    m_glIndexBuffer = 0;
-    m_generation = rs.generation();
-    return false;
   }
 
   return true;

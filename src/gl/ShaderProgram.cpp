@@ -50,11 +50,10 @@ GLint ShaderProgram::getAttributeLocation(const std::string& name) {
 
 GLint ShaderProgram::getUniformLocation(const UniformLocation& uniform) {
 
-  if (m_generation == uniform.generation) {
+  if (uniform.location >= -1) {
     return uniform.location;
   }
 
-  uniform.generation = m_generation;
   uniform.location = glGetUniformLocation(m_glProgram, uniform.name.c_str());
   CHECK_GL();
 
@@ -79,8 +78,6 @@ bool ShaderProgram::isValid() const {
 
 bool ShaderProgram::use(RenderState& rs) {
 
-  checkValidity(rs);
-
   if (m_needsBuild) {
     build(rs);
   }
@@ -95,7 +92,6 @@ bool ShaderProgram::use(RenderState& rs) {
 bool ShaderProgram::build(RenderState& rs) {
 
   m_needsBuild = false;
-  m_generation = rs.generation();
 
   // Try to compile vertex and fragment shaders, releasing resources and
   // quiting on failure.
@@ -193,16 +189,6 @@ GLuint ShaderProgram::makeCompiledShader(const std::string& source, GLenum type)
   }
 
   return shader;
-}
-
-void ShaderProgram::checkValidity(RenderState& renderState) {
-
-  if (!renderState.isValidGeneration(m_generation)) {
-    m_glFragmentShader = 0;
-    m_glVertexShader = 0;
-    m_glProgram = 0;
-    m_needsBuild = true;
-  }
 }
 
 bool uniformCacheCompare(const ShaderUniform& u, int location) {

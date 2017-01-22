@@ -14,13 +14,7 @@ public:
   static constexpr size_t MAX_ATTRIBUTES = 16;
 
   // Reset the render states.
-  void configure();
-
-  int generation();
-
-  void increaseGeneration();
-
-  bool isValidGeneration(int _generation);
+  void reset();
 
   // Get the texture slot from a texture unit from 0 to TANGRAM_MAX_TEXTURE_UNIT-1.
   static GLuint getTextureUnit(GLuint _unit);
@@ -85,7 +79,6 @@ public:
   std::array<GLuint, MAX_ATTRIBUTES> attributeBindings = {{0}};
 
 private:
-  int m_validGeneration = 0;
   int m_nextTextureUnit = 0;
 
   struct {

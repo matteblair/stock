@@ -72,7 +72,7 @@ GLuint Texture::glHandle() const { return m_glHandle; }
 
 void Texture::prepare(RenderState& rs) {
 
-  if (m_glHandle != 0 && rs.isValidGeneration(m_generation)) {
+  if (m_glHandle != 0) {
     return;
   }
 
@@ -104,8 +104,6 @@ void Texture::prepare(RenderState& rs) {
   if (m_options.generateMipmaps) {
     CHECK_GL(glGenerateMipmap(m_target));
   }
-
-  m_generation = rs.generation();
 }
 
 void Texture::bind(RenderState& rs) {
@@ -115,10 +113,6 @@ void Texture::bind(RenderState& rs) {
 }
 
 void Texture::dispose(RenderState& rs) {
-
-  if (!rs.isValidGeneration(m_generation)) {
-    return;
-  }
 
   rs.textureUnset(m_target, m_glHandle);
 

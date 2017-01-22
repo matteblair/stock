@@ -11,7 +11,7 @@ constexpr size_t maxCombinedTextureUnits = 16;
 
 GLuint RenderState::getTextureUnit(GLuint _unit) { return GL_TEXTURE0 + _unit; }
 
-void RenderState::configure() {
+void RenderState::reset() {
 
   m_blending.set = false;
   m_blendingFunc.set = false;
@@ -34,12 +34,6 @@ void RenderState::configure() {
 
   CHECK_GL(glDepthFunc(GL_LESS));
 }
-
-void RenderState::increaseGeneration() { m_validGeneration++; }
-
-bool RenderState::isValidGeneration(int _generation) { return _generation == m_validGeneration; }
-
-int RenderState::generation() { return m_validGeneration; }
 
 int RenderState::nextAvailableTextureUnit() {
   if (m_nextTextureUnit + 1 > maxCombinedTextureUnits) {

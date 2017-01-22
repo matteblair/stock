@@ -75,14 +75,12 @@ private:
   std::string m_fragmentShaderSource;
   std::string m_vertexShaderSource;
 
-  int32_t m_generation = -1;
   GLuint m_glProgram = 0;
   GLuint m_glFragmentShader = 0;
   GLuint m_glVertexShader = 0;
 
   bool m_needsBuild = true;
 
-  void checkValidity(RenderState& renderState);
   GLuint makeLinkedShaderProgram(GLuint fragmentShader, GLuint vertexShader);
   GLuint makeCompiledShader(const std::string& source, GLenum type);
   ShaderUniform& getCachedUniform(GLint location);

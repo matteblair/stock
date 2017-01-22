@@ -89,9 +89,6 @@ public:
 protected:
   Options m_options;
 
-  // Generation in which this texture's GL handle was created
-  int m_generation = -1;
-
   // Image dimensions in pixels
   uint32_t m_width = 0;
   uint32_t m_height = 0;
