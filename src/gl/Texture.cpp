@@ -42,7 +42,7 @@ void Texture::prepare(RenderState& rs) {
 
   auto width = m_pixmap.width();
   auto height = m_pixmap.height();
-  auto data = m_pixmap.consumePixels();
+  auto data = m_pixmap.pixels();
   auto format = static_cast<GLenum>(m_pixmap.format());
   auto type = static_cast<GLenum>(m_pixmap.type());
 
@@ -52,7 +52,7 @@ void Texture::prepare(RenderState& rs) {
     CHECK_GL(glGenerateMipmap(m_target));
   }
 
-  free(data);
+  m_pixmap.dispose();
 }
 
 void Texture::bind(RenderState& rs) {
@@ -66,6 +66,8 @@ void Texture::dispose(RenderState& rs) {
   rs.textureUnset(m_target, m_glHandle);
 
   CHECK_GL(glDeleteTextures(1, &m_glHandle));
+
+  m_pixmap.dispose();
 }
 
 } // namespace stock

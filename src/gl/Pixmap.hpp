@@ -29,12 +29,6 @@ public:
   // Construct an empty Pixmap.
   Pixmap();
 
-  // Construct a Pixmap by copy.
-  Pixmap(const Pixmap& other);
-
-  // Construct a Pixmap by move.
-  Pixmap(Pixmap&& other);
-
   // Construct a Pixmap from a buffer of pixel data. The Pixmap takes ownership of the buffer.
   Pixmap(uint32_t width, uint32_t height, uint8_t* pixels, PixelFormat format, PixelType type = PixelType::UNSIGNED_BYTE);
 
@@ -45,11 +39,11 @@ public:
   // Construct a Pixmap from a buffer of image file data.
   Pixmap(const std::vector<uint8_t>& rawFileData) : Pixmap(rawFileData.data(), rawFileData.size()) {}
 
-  // Destroy the Pixmap and free any pixel data.
+  // Destroy the Pixmap. This does not free any data owned by the Pixmap.
   ~Pixmap();
 
-  // Return and release ownership of the pixel data to the caller.
-  uint8_t* consumePixels();
+  // Free any data owned by this Pixmap.
+  void dispose();
 
   // Get the pixel format of the Pixmap.
   PixelFormat format() const { return m_format; }

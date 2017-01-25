@@ -14,20 +14,6 @@ namespace stock {
 
 Pixmap::Pixmap() {}
 
-Pixmap::Pixmap(const Pixmap &other)
-    : m_format(other.m_format), m_type(other.m_type), m_width(other.m_width), m_height(other.m_height) {
-  // Copy the pixel buffer from the other Pixmap.
-  if (other.m_pixels != nullptr) {
-    size_t size = m_width * m_height * components();
-    m_pixels = new uint8_t[size];
-    memccpy(m_pixels, other.m_pixels, 1, size);
-  }
-}
-
-Pixmap::Pixmap(Pixmap &&other)
-    : m_format(other.m_format), m_type(other.m_type), m_pixels(other.m_pixels), m_width(other.m_width),
-      m_height(other.m_height) {}
-
 Pixmap::Pixmap(uint32_t width, uint32_t height, uint8_t* pixels, PixelFormat format, PixelType type)
     : m_format(format), m_type(type), m_pixels(pixels), m_width(width), m_height(height) {}
 
@@ -59,14 +45,11 @@ Pixmap::Pixmap(const uint8_t* data, size_t dataSize) {
   }
 }
 
-Pixmap::~Pixmap() {
-  free(m_pixels);
-}
+Pixmap::~Pixmap() {}
 
-uint8_t* Pixmap::consumePixels() {
-  auto pixels = m_pixels;
+void Pixmap::dispose() {
+  free(m_pixels);
   m_pixels = nullptr;
-  return pixels;
 }
 
 uint32_t Pixmap::components() const {
