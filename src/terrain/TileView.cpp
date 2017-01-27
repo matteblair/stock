@@ -57,7 +57,7 @@ void TileView::update() {
   auto endTiles = endMeters / metersPerTile + 1.;
   for (double x = beginTiles.x; x < endTiles.x; x += 1.) {
     for (double y = beginTiles.y; y < endTiles.y; y += 1.) {
-      m_visibleTiles.emplace_back(floor(x), floor(y), floor(m_zoom));
+      m_visibleTiles.emplace_back(floor(x), ceil(y), floor(m_zoom));
     }
   }
 
@@ -65,19 +65,18 @@ void TileView::update() {
 }
 
 glm::mat4 TileView::getModelViewProjectionMatrix(const TileAddress& address) const {
-  double metersPerTile = earthCircumference * exp2(-m_zoom);
-  double metersPerPixel = metersPerTile / pixelsPerTile;
 
   glm::dvec3 tileOriginMeters(address.getOriginMercatorMeters(), 0.);
-  glm::vec3 translation = glm::vec3(m_position - tileOriginMeters);
+  glm::vec3 translation(tileOriginMeters - m_position);
 
-  // Mercator meters are y-down, but our view space is y-up.
-  translation.y *= -1.f;
-
-  float scale = static_cast<float>(metersPerPixel * pixelsPerTile);
-
+  float scale = static_cast<float>(address.getSizeMercatorMeters());
   glm::mat4 modelMatrix(scale);
-  modelMatrix[3] = glm::vec4(-translation, scale);
+
+  // Apply translation to model matrix. 'y' translation is negated
+  // because Mercator meters are 'y-down' but our view space is 'y-up'.
+  modelMatrix[3][0] =  translation[0];
+  modelMatrix[3][1] = -translation[1];
+  modelMatrix[3][2] =  translation[2];
 
   return m_camera.viewProjectionMatrix() * modelMatrix;
 }

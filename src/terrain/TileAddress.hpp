@@ -33,6 +33,8 @@ public:
 
   glm::dvec2 getOriginMercatorMeters() const;
 
+  double getSizeMercatorMeters() const;
+
   const uint32_t x;
   const uint32_t y;
   const uint8_t z;
