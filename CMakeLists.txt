@@ -37,6 +37,8 @@ set(STOCK_SOURCES
     src/transform/Transform.cpp
     src/view/Camera.hpp
     src/view/Camera.cpp
+    src/view/ViewOrbit.hpp
+    src/view/ViewOrbit.cpp
     src/terrain/LngLat.hpp
     src/terrain/LngLat.cpp
     src/terrain/TerrainData.hpp

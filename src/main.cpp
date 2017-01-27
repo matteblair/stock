@@ -4,9 +4,9 @@
 #include "gl/Mesh.hpp"
 #include "gl/RenderState.hpp"
 #include "gl/ShaderProgram.hpp"
-#include "io/File.hpp"
 #include "io/UrlSession.hpp"
 #include "view/Camera.hpp"
+#include "view/ViewOrbit.hpp"
 #include "terrain/TerrainModel.hpp"
 #include "terrain/TileView.hpp"
 #include "ImGuiImpl.hpp"
@@ -18,29 +18,39 @@ struct AppData {
   RenderState rs;
   TerrainModel model;
   TileView view;
+  ViewOrbit orbit;
   std::vector<TerrainData> terrainTiles;
 };
 
-void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
+void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods) {
   AppData* app = reinterpret_cast<AppData*>(glfwGetWindowUserPointer(window));
 
   if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-    switch (key) {
-    case GLFW_KEY_G:
+    if (key == GLFW_KEY_G) {
       app->model.toggleGrid();
-      break;
-    case GLFW_KEY_H:
+    } else if (key == GLFW_KEY_H) {
       app->model.toggleHull();
-      break;
-    case GLFW_KEY_UP:
+    } else if (key == GLFW_KEY_R) {
+      app->orbit.reset();
+    } else if (key == GLFW_KEY_UP) {
       Log::df("Resolution increased to: %d\n", app->model.increaseResolution());
-      break;
-    case GLFW_KEY_DOWN:
+    } else if (key == GLFW_KEY_DOWN) {
       Log::df("Resolution decreased to: %d\n", app->model.decreaseResolution());
-      break;
     }
   }
+}
+
+void onMouseMove(GLFWwindow* window, double xpos, double ypos) {
+  AppData* app = reinterpret_cast<AppData*>(glfwGetWindowUserPointer(window));
+  bool mouseDown = static_cast<bool>(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT));
+  float xNorm = static_cast<float>(xpos) / app->view.camera().width();
+  float yNorm = static_cast<float>(ypos) / app->view.camera().height();
+  app->orbit.drag(xNorm, yNorm, mouseDown);
+}
+
+void onMouseScroll(GLFWwindow* window, double xoffset, double yoffset) {
+  AppData* app = reinterpret_cast<AppData*>(glfwGetWindowUserPointer(window));
+  app->view.setZoom(app->view.zoom() + yoffset / 100.);
 }
 
 int main(void) {
@@ -93,7 +103,7 @@ int main(void) {
   app.view.camera().transform().setDirection({0.f, 0.f, -1.f});
   app.view.camera().setUpVector({0.f, 1.f, 0.f});
   app.view.setPosition(LngLat(-121.9320666, 37.8719037));
-  app.view.setZoom(12);
+  app.view.setZoom(14);
   app.view.update();
 
   auto tiles = app.view.visibleTiles();
@@ -106,19 +116,20 @@ int main(void) {
     auto& terrainData = app.terrainTiles.back();
     auto elevationDataUrl = terrainData.populateUrlTemplate("https://tile.mapzen.com/mapzen/terrain/v1/terrarium/%d/%d/%d.png");
     urlSession.addRequest(elevationDataUrl, [&](UrlSession::Response response) {
-      Log::df("Received elevation URL response! Data length: %d\n", response.data.size());
+      Log::vf("Received elevation URL response! Data length: %d\n", response.data.size());
       terrainData.loadElevationData(response.data);
     });
     auto normalDataUrl = terrainData.populateUrlTemplate("https://tile.mapzen.com/mapzen/terrain/v1/normal/%d/%d/%d.png");
     urlSession.addRequest(normalDataUrl, [&](UrlSession::Response response) {
-      Log::df("Received normal URL response! Data length: %d\n", response.data.size());
+      Log::vf("Received normal URL response! Data length: %d\n", response.data.size());
       terrainData.loadNormalData(response.data);
     });
   }
 
   glfwSetWindowUserPointer(window, &app);
-
   glfwSetKeyCallback(window, &onKeyEvent);
+  glfwSetCursorPosCallback(window, &onMouseMove);
+  glfwSetScrollCallback(window, &onMouseScroll);
 
   glm::dvec2 mousePosition;
 
@@ -142,24 +153,11 @@ int main(void) {
 
     CHECK_GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
+    app.view.camera().transform().setDirection(app.orbit.getDirection());
+    app.view.update();
+
     for (auto& tile : app.terrainTiles) {
       app.model.render(app.rs, tile, app.view);
-    }
-
-    static const glm::vec3 point = {0.f, 0.f, 0.f}, axis = {0.f, 0.f, 1.f};
-
-    glm::dvec2 lastMousePosition = mousePosition;
-    glfwGetCursorPos(window, &mousePosition.x, &mousePosition.y);
-    auto mouseDelta = mousePosition - lastMousePosition;
-    auto mouseDistance = glm::length(mouseDelta);
-    auto mouseScreenVector = (float)mouseDelta.x * Transform::RIGHT - (float)mouseDelta.y * Transform::UP;
-    auto mouseWorldVector = app.view.camera().transform().convertLocalVectorToWorld(mouseScreenVector);
-    auto orbitAxis = glm::cross(app.view.camera().transform().getDirection(), mouseWorldVector);
-    if (glfwGetMouseButton(window, 0)) {
-      if (glm::abs(mouseDistance) > 0.0001) {
-        app.view.camera().transform().orbit(point, orbitAxis, mouseDistance * 0.01);
-        app.view.camera().lookAt(point);
-      }
     }
 
     // ImGui::ShowDemoWindow();
