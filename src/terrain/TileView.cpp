@@ -13,9 +13,6 @@ static constexpr double earthRadius = 6378137.0; // meters
 static constexpr double earthCircumference = 2.0 * M_PI * earthRadius;
 static constexpr double earthHalfCircumference = M_PI * earthRadius;
 
-TileView::TileView(Camera camera) : m_camera(camera) {
-}
-
 void TileView::setPosition(LngLat position) {
   m_lngLat = position;
   m_isDirty = true;

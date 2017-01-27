@@ -14,7 +14,7 @@ class TileView {
 
 public:
 
-  TileView(Camera camera);
+  TileView() {}
 
   void setPosition(LngLat position);
 

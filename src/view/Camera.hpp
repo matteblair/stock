@@ -32,6 +32,8 @@ public:
     glm::vec3 direction;
   };
 
+  Camera() = default;
+
   Camera(float width, float height, Options options);
 
   float width() const;
@@ -72,8 +74,8 @@ private:
   Transform m_transform;
   glm::vec3 m_up = Transform::UP;
   Options m_options;
-  float m_width = 1.f;
-  float m_height = 1.f;
+  float m_width = 1024.f;
+  float m_height = 768.f;
 };
 
 } // namespace stock

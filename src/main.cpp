@@ -16,9 +16,8 @@ using namespace stock;
 
 struct AppData {
   RenderState rs;
-  // TerrainData data = TerrainData(TileAddress(3036, 1716, 12));
   TerrainModel model;
-  TileView view = TileView(Camera(1024.f, 768.f, Camera::Options()));
+  TileView view;
   std::vector<TerrainData> terrainTiles;
 };
 
@@ -46,17 +45,21 @@ void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
 
 int main(void) {
 
-  GLFWwindow* window;
+  // Create the application data container.
+  AppData app{};
 
-  // Initialize the library.
+  // Initialize GLFW.
   if (!glfwInit()) {
     return -1;
   }
 
+  // Set anti-aliasing on.
   glfwWindowHint(GLFW_SAMPLES, 4);
 
   // Create a windowed mode window and its OpenGL context.
-  window = glfwCreateWindow(1024, 768, "GLFW Window", nullptr, nullptr);
+  int windowWidth = static_cast<int>(app.view.camera().width());
+  int windowHeight = static_cast<int>(app.view.camera().height());
+  GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "GLFW Window", nullptr, nullptr);
   if (!window) {
     glfwTerminate();
     return -1;
@@ -65,6 +68,7 @@ int main(void) {
   // Make the window's context current.
   glfwMakeContextCurrent(window);
 
+  // Load OpenGL functions with GLAD.
   gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress);
 
   Log::setLevel(Log::Level::DEBUGGING);
@@ -79,7 +83,6 @@ int main(void) {
   // Setup style
   ImGui::StyleColorsDark();
 
-  AppData app;
   app.rs.reset();
   app.rs.clearColor(0.f, 0.f, 0.f, 1.f);
   app.rs.depthTest(GL_TRUE);
