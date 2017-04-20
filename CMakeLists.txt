@@ -4,6 +4,7 @@ project(stock)
 list(APPEND CMAKE_CXX_FLAGS -std=c++11)
 
 set(STOCK_SOURCE_FILES
+    src/app/App.cpp
     src/gl/Error.cpp
     src/gl/Framebuffer.cpp
     src/gl/Mesh.cpp
