@@ -25,7 +25,7 @@ uint32_t Texture::height() const { return m_pixmap.width(); }
 
 GLuint Texture::glHandle() const { return m_glHandle; }
 
-void Texture::prepare(RenderState& rs) {
+void Texture::prepare(RenderState& rs, GLuint unit) {
 
   if (m_glHandle != 0) {
     return;
@@ -33,7 +33,7 @@ void Texture::prepare(RenderState& rs) {
 
   CHECK_GL(glGenTextures(1, &m_glHandle));
 
-  rs.texture(m_target, m_glHandle);
+  bind(rs, unit);
 
   CHECK_GL(glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, static_cast<GLenum>(m_options.minFilter)));
   CHECK_GL(glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, static_cast<GLenum>(m_options.magFilter)));
@@ -55,10 +55,8 @@ void Texture::prepare(RenderState& rs) {
   m_pixmap.dispose();
 }
 
-void Texture::bind(RenderState& rs) {
-
-  prepare(rs);
-  rs.texture(m_target, m_glHandle);
+void Texture::bind(RenderState& rs, GLuint unit) {
+  rs.texture(m_target, unit, m_glHandle);
 }
 
 void Texture::dispose(RenderState& rs) {

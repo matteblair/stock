@@ -13,9 +13,9 @@ Framebuffer::Framebuffer(uint32_t width, uint32_t height, Options options)
 
 Framebuffer::~Framebuffer() {}
 
-void Framebuffer::prepare(RenderState& rs) {
+void Framebuffer::prepare(RenderState& rs, GLuint unit) {
 
-  m_colorTexture.prepare(rs);
+  m_colorTexture.prepare(rs, unit);
 
   // Generate framebuffer handle.
   CHECK_GL(glGenFramebuffers(1, &m_framebufferHandle));
@@ -31,7 +31,7 @@ void Framebuffer::prepare(RenderState& rs) {
   }
 
   // Bind color texture.
-  m_colorTexture.bind(rs);
+  m_colorTexture.bind(rs, unit);
 
   if (m_options.hasDepth) {
     // Create depth buffer storage.
@@ -96,10 +96,10 @@ void Framebuffer::prepare(RenderState& rs) {
   }
 }
 
-void Framebuffer::bind(RenderState& rs) {
+void Framebuffer::bind(RenderState& rs, GLuint unit) {
 
   if (m_framebufferHandle == 0) {
-    prepare(rs);
+    prepare(rs, unit);
   }
 
   CHECK_GL(glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferHandle));

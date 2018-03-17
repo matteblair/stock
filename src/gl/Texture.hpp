@@ -62,10 +62,10 @@ public:
   GLuint glHandle() const;
 
   // Initialize OpenGL resources for the Texture, if needed.
-  void prepare(RenderState& rs);
+  void prepare(RenderState& rs, GLuint unit);
 
-  // Bind the Texture to the current texture unit.
-  void bind(RenderState& rs);
+  // Bind the Texture to the specified texture unit.
+  void bind(RenderState& rs, GLuint unit);
 
   // Delete any OpenGL resources for the Texture.
   void dispose(RenderState& rs);

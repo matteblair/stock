@@ -6,11 +6,6 @@
 
 namespace stock {
 
-// TODO: read max texture units from hardware
-constexpr size_t maxCombinedTextureUnits = 16;
-
-GLuint RenderState::getTextureUnit(GLuint _unit) { return GL_TEXTURE0 + _unit; }
-
 void RenderState::reset() {
 
   m_blending.set = false;
@@ -27,27 +22,13 @@ void RenderState::reset() {
   m_program.set = false;
   m_indexBuffer.set = false;
   m_vertexBuffer.set = false;
-  m_texture.set = false;
   m_textureUnit.set = false;
 
   attributeBindings.fill(0);
+  textureBindings.fill(0);
 
   CHECK_GL(glDepthFunc(GL_LESS));
 }
-
-int RenderState::nextAvailableTextureUnit() {
-  if (m_nextTextureUnit + 1 > maxCombinedTextureUnits) {
-    Log::e("Too many combined texture units are being used");
-  }
-
-  return ++m_nextTextureUnit;
-}
-
-void RenderState::releaseTextureUnit() { m_nextTextureUnit--; }
-
-int RenderState::currentTextureUnit() { return m_nextTextureUnit; }
-
-void RenderState::resetTextureUnit() { m_nextTextureUnit = -1; }
 
 inline void setGlFlag(GLenum flag, GLboolean enable) {
   if (enable) {
@@ -184,9 +165,10 @@ bool RenderState::shaderProgram(GLuint program) {
   return true;
 }
 
-bool RenderState::texture(GLenum target, GLuint handle) {
-  if (!m_texture.set || m_texture.target != target || m_texture.handle != handle) {
-    m_texture = {target, handle, true};
+bool RenderState::texture(GLenum target, GLuint unit, GLuint handle) {
+  textureUnit(unit);
+  if (textureBindings[unit] != handle) {
+    textureBindings[unit] = handle;
     CHECK_GL(glBindTexture(target, handle));
     return false;
   }
@@ -196,9 +178,7 @@ bool RenderState::texture(GLenum target, GLuint handle) {
 bool RenderState::textureUnit(GLuint unit) {
   if (!m_textureUnit.set || m_textureUnit.unit != unit) {
     m_textureUnit = {unit, true};
-    // Our cached texture handle is irrelevant on the new unit, so unset it.
-    m_texture.set = false;
-    CHECK_GL(glActiveTexture(getTextureUnit(unit)));
+    CHECK_GL(glActiveTexture(GL_TEXTURE0 + unit));
     return false;
   }
   return true;
@@ -241,8 +221,10 @@ void RenderState::shaderProgramUnset(GLuint program) {
 }
 
 void RenderState::textureUnset(GLenum target, GLuint handle) {
-  if (m_texture.handle == handle) {
-    m_texture.set = false;
+  for (auto& binding : textureBindings) {
+    if (binding == handle) {
+      binding = 0;
+    }
   }
 }
 

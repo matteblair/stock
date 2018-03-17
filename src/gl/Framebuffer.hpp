@@ -24,9 +24,9 @@ public:
 
   ~Framebuffer();
 
-  void prepare(RenderState& rs);
+  void prepare(RenderState& rs, GLuint unit);
 
-  void bind(RenderState& rs);
+  void bind(RenderState& rs, GLuint unit);
 
   void unbind(RenderState& rs);
 

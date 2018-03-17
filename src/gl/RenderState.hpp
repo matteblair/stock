@@ -13,23 +13,17 @@ class RenderState {
 public:
   static constexpr size_t MAX_ATTRIBUTES = 16;
 
+  // TODO: read max texture units from hardware
+  static constexpr size_t MAX_COMBINED_TEXTURE_UNITS = 16;
+
+  RenderState() = default;
+
+  // Disallow copying by construction and assignment.
+  RenderState(const RenderState&) = delete;
+  RenderState& operator=(const RenderState&) = delete;
+
   // Reset the render states.
   void reset();
-
-  // Get the texture slot from a texture unit from 0 to TANGRAM_MAX_TEXTURE_UNIT-1.
-  static GLuint getTextureUnit(GLuint _unit);
-
-  // Get the currently active texture unit.
-  int currentTextureUnit();
-
-  // Get the immediately next available texture unit and mark it unavailable.
-  int nextAvailableTextureUnit();
-
-  // Reset the currently used texture unit.
-  void resetTextureUnit();
-
-  // Release one texture unit slot.
-  void releaseTextureUnit();
 
   bool blending(GLboolean enable);
 
@@ -59,7 +53,7 @@ public:
 
   bool shaderProgram(GLuint program);
 
-  bool texture(GLenum target, GLuint handle);
+  bool texture(GLenum target, GLuint unit, GLuint handle);
 
   bool textureUnit(GLuint unit);
 
@@ -79,7 +73,8 @@ public:
   std::array<GLuint, MAX_ATTRIBUTES> attributeBindings = {{0}};
 
 private:
-  int m_nextTextureUnit = 0;
+
+  std::array<GLuint, MAX_COMBINED_TEXTURE_UNITS> textureBindings = {{0}};
 
   struct {
     GLboolean enabled;
@@ -132,12 +127,6 @@ private:
     GLclampf r, g, b, a;
     bool set;
   } m_clearColor;
-
-  struct {
-    GLenum target;
-    GLuint handle;
-    bool set;
-  } m_texture;
 
   struct {
     GLuint unit;
