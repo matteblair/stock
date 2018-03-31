@@ -102,13 +102,13 @@ int main(void) {
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
     // Render here.
-    CHECK_GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
     rs.culling(true);
     rs.cullFace(GL_BACK);
     rs.depthTest(true);
     rs.blending(false);
     rs.scissorTest(false);
+
+    CHECK_GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
     static const glm::vec3 point = {0.f, 0.f, 0.f}, axis = {0.f, 0.f, 1.f};
     camera.orbit(point, axis, 0.016f);
