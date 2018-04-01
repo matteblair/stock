@@ -11,25 +11,33 @@
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 // https://github.com/ocornut/imgui
 
+#include <imgui.h>
+
 struct GLFWwindow;
 
 namespace stock {
-class RenderState;
-}
 
-IMGUI_API bool        ImGui_ImplGlfwGL3_Init(GLFWwindow* window, bool install_callbacks, const char* glsl_version = NULL);
-IMGUI_API void        ImGui_ImplGlfwGL3_Shutdown(stock::RenderState& rs);
-IMGUI_API void        ImGui_ImplGlfwGL3_NewFrame(stock::RenderState& rs);
-IMGUI_API void        ImGui_ImplGlfwGL3_RenderDrawData(stock::RenderState& rs, ImDrawData* draw_data);
+class RenderState;
+
+namespace ImGuiImpl {
+
+bool Init(GLFWwindow* window, bool install_callbacks);
+void Shutdown(RenderState& rs);
+void NewFrame(RenderState& rs);
+void RenderDrawData(RenderState& rs, ImDrawData* draw_data);
 
 // Use if you want to reset your rendering device without losing ImGui state.
-IMGUI_API void        ImGui_ImplGlfwGL3_InvalidateDeviceObjects(stock::RenderState& rs);
-IMGUI_API bool        ImGui_ImplGlfwGL3_CreateDeviceObjects(stock::RenderState& rs);
+void InvalidateDeviceObjects(RenderState& rs);
+bool CreateDeviceObjects(RenderState& rs);
 
 // GLFW callbacks (installed by default if you enable 'install_callbacks' during initialization)
 // Provided here if you want to chain callbacks.
 // You can also handle inputs yourself and use those as a reference.
-IMGUI_API void        ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-IMGUI_API void        ImGui_ImplGlfw_ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-IMGUI_API void        ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-IMGUI_API void        ImGui_ImplGlfw_CharCallback(GLFWwindow* window, unsigned int c);
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void CharCallback(GLFWwindow* window, unsigned int c);
+
+} // namespace ImguiImpl
+
+} // namespace stock

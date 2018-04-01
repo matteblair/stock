@@ -18,7 +18,7 @@ add_executable(stock
     src/io/Log.cpp
     src/view/Camera.cpp
     src/main.cpp
-    src/imgui_impl_glfw_gl3.cpp
+    src/ImGuiImpl.cpp
 )
 
 set_target_properties(stock PROPERTIES

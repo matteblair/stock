@@ -4,9 +4,8 @@
 #include "gl/RenderState.hpp"
 #include "gl/ShaderProgram.hpp"
 #include "view/Camera.hpp"
+#include "ImGuiImpl.hpp"
 #include <GLFW/glfw3.h>
-#include <imgui.h>
-#include <imgui_impl_glfw_gl3.h>
 
 using namespace stock;
 
@@ -59,7 +58,7 @@ int main(void) {
   ImGuiIO& io = ImGui::GetIO(); (void)io;
   //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
   //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
-  ImGui_ImplGlfwGL3_Init(window, true);
+  ImGuiImpl::Init(window, true);
 
   // Setup style
   ImGui::StyleColorsDark();
@@ -95,7 +94,7 @@ int main(void) {
 
     // Poll for and process events.
     glfwPollEvents();
-    ImGui_ImplGlfwGL3_NewFrame(rs);
+    ImGuiImpl::NewFrame(rs);
 
     // Create ImGui interface.
     ImGui::Text("Hello, world!");
@@ -121,7 +120,7 @@ int main(void) {
 
     // Render ImGui interface.
     ImGui::Render();
-    ImGui_ImplGlfwGL3_RenderDrawData(rs, ImGui::GetDrawData());
+    ImGuiImpl::RenderDrawData(rs, ImGui::GetDrawData());
 
     // Swap front and back buffers.
     glfwSwapBuffers(window);
@@ -130,7 +129,7 @@ int main(void) {
   shader.dispose(rs);
   mesh.dispose(rs);
 
-  ImGui_ImplGlfwGL3_Shutdown(rs);
+  ImGuiImpl::Shutdown(rs);
 
   glfwTerminate();
   return 0;
