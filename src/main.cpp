@@ -1,4 +1,5 @@
 #define GLFW_INCLUDE_NONE
+#include "debug/DebugDraw.hpp"
 #include "gl/Error.hpp"
 #include "gl/Mesh.hpp"
 #include "gl/RenderState.hpp"
@@ -117,6 +118,19 @@ int main(void) {
     shader.setUniformMatrix4f(rs, mvpMatrixLocation, camera.viewProjectionMatrix());
 
     mesh.draw(rs, shader);
+
+    DebugDraw::cameraMatrix(camera.viewProjectionMatrix());
+    DebugDraw::point(rs, {1.f, 0.f, 0.f});
+    DebugDraw::point(rs, {0.f, 1.f, 0.f});
+    DebugDraw::point(rs, {0.f, 0.f, 1.f});
+
+    DebugDraw::linestring(rs, {
+      { 1.f, -1.f, -1.f},
+      { 1.f,  1.f, -1.f},
+      {-1.f,  1.f, -1.f},
+      {-1.f, -1.f, -1.f},
+      { 1.f, -1.f, -1.f},
+    });
 
     // Render ImGui interface.
     ImGui::Render();

@@ -5,6 +5,7 @@ project(stock)
 add_subdirectory(deps)
 
 add_executable(stock
+    src/debug/DebugDraw.cpp
     src/gl/Error.cpp
     src/gl/Framebuffer.cpp
     src/gl/Mesh.cpp
