@@ -4,6 +4,7 @@
 #include "gl/Framebuffer.hpp"
 #include "gl/Error.hpp"
 #include "io/Log.hpp"
+#include <cassert>
 
 namespace stock {
 
@@ -11,7 +12,11 @@ Framebuffer::Framebuffer(uint32_t width, uint32_t height, Options options)
     : m_colorTexture(Pixmap(width, height, nullptr, options.format), Texture::Options()),
       m_width(width), m_height(height), m_options(options) {}
 
-Framebuffer::~Framebuffer() {}
+Framebuffer::~Framebuffer() {
+  assert(m_depthbufferHandle == 0);
+  assert(m_stencilbufferHandle == 0);
+  assert(m_framebufferHandle == 0);
+}
 
 void Framebuffer::prepare(RenderState& rs, GLuint unit) {
 

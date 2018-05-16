@@ -5,6 +5,7 @@
 #include "gl/Error.hpp"
 #include "gl/Texture.hpp"
 #include "gl/RenderState.hpp"
+#include <cassert>
 #include <cstdlib>
 
 namespace stock {
@@ -17,7 +18,9 @@ Texture::Texture(Options options)
 Texture::Texture(Pixmap pixmap, Options options)
     : m_pixmap(pixmap), m_options(options) {}
 
-Texture::~Texture() {}
+Texture::~Texture() {
+  assert(m_glHandle == 0);
+}
 
 uint32_t Texture::width() const { return m_pixmap.width(); }
 
@@ -64,6 +67,7 @@ void Texture::dispose(RenderState& rs) {
   rs.textureUnset(m_target, m_glHandle);
 
   CHECK_GL(glDeleteTextures(1, &m_glHandle));
+  m_glHandle = 0;
 
   m_pixmap.dispose();
 }

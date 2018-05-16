@@ -5,6 +5,7 @@
 #include "gl/Mesh.hpp"
 #include "gl/RenderState.hpp"
 #include "gl/ShaderProgram.hpp"
+#include <cassert>
 
 #define MAX_INDEX_VALUE 65535 // Maximum value of GLushort
 
@@ -12,7 +13,10 @@ namespace stock {
 
 MeshBase::MeshBase() : m_vertexLayout({}) {}
 
-MeshBase::~MeshBase() {}
+MeshBase::~MeshBase() {
+  assert(m_glVertexBuffer == 0);
+  assert(m_glIndexBuffer == 0);
+}
 
 void MeshBase::dispose(RenderState& rs) {
 
@@ -22,10 +26,12 @@ void MeshBase::dispose(RenderState& rs) {
   if (m_glVertexBuffer) {
     rs.vertexBufferUnset(m_glVertexBuffer);
     CHECK_GL(glDeleteBuffers(1, &m_glVertexBuffer));
+    m_glVertexBuffer = 0;
   }
   if (m_glIndexBuffer) {
     rs.indexBufferUnset(m_glIndexBuffer);
     CHECK_GL(glDeleteBuffers(1, &m_glIndexBuffer));
+    m_glIndexBuffer = 0;
   }
 }
 

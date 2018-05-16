@@ -5,28 +5,37 @@
 #include "gl/Error.hpp"
 #include "glm/gtc/type_ptr.hpp"
 #include <algorithm>
+#include <cassert>
 
 namespace stock {
 
 ShaderProgram::ShaderProgram(const std::string& fragmentShaderSource, const std::string& vertexShaderSource)
     : m_fragmentShaderSource(fragmentShaderSource), m_vertexShaderSource(vertexShaderSource) {}
 
-ShaderProgram::~ShaderProgram() {}
+ShaderProgram::~ShaderProgram() {
+  assert(m_glProgram == 0);
+  assert(m_glFragmentShader == 0);
+  assert(m_glVertexShader == 0);
+}
 
 void ShaderProgram::dispose(RenderState& rs) {
+
+  rs.shaderProgramUnset(m_glProgram);
+
   if (m_glProgram != 0) {
     CHECK_GL(glDeleteProgram(m_glProgram));
+    m_glProgram = 0;
   }
 
   if (m_glFragmentShader != 0) {
     CHECK_GL(glDeleteShader(m_glFragmentShader));
+    m_glFragmentShader = 0;
   }
 
   if (m_glVertexShader != 0) {
     CHECK_GL(glDeleteShader(m_glVertexShader));
+    m_glVertexShader = 0;
   }
-
-  rs.shaderProgramUnset(m_glProgram);
 }
 
 GLint ShaderProgram::getAttributeLocation(const std::string& name) {
