@@ -46,6 +46,15 @@ static VertexLayout g_vertexLayout({
   VertexAttribute("a_color", 4, GL_UNSIGNED_BYTE, GL_TRUE),
 });
 
+void dispose(RenderState& rs) {
+  g_shaderProgram.dispose(rs);
+  g_mesh.dispose(rs);
+}
+
+void cameraMatrix(const glm::mat4& matrix) {
+  g_modelViewProjectionMatrix = matrix;
+}
+
 // Render the current mesh contents immediately and then reset it.
 void render(RenderState& rs) {
   rs.culling(false);
@@ -56,10 +65,6 @@ void render(RenderState& rs) {
   g_mesh.upload(rs, GL_STREAM_DRAW);
   g_mesh.draw(rs, g_shaderProgram);
   g_mesh.reset();
-}
-
-void cameraMatrix(const glm::mat4& matrix) {
-  g_modelViewProjectionMatrix = matrix;
 }
 
 void point(RenderState& rs, const glm::vec3& pos) {

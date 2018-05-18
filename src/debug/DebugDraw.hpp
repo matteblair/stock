@@ -14,6 +14,8 @@ namespace DebugDraw {
 
 void cameraMatrix(const glm::mat4& matrix);
 
+void dispose(RenderState& rs);
+
 void point(RenderState& rs, const glm::vec3& position);
 
 void linestring(RenderState& rs, const std::vector<glm::vec3>& positions);

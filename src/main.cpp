@@ -143,6 +143,8 @@ int main(void) {
   shader.dispose(rs);
   mesh.dispose(rs);
 
+  DebugDraw::dispose(rs);
+
   ImGuiImpl::Shutdown(rs);
 
   glfwTerminate();
