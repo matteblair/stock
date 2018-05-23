@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.2)
+
 project(stock)
 
-list(APPEND CMAKE_CXX_FLAGS -std=c++11)
-
-set(STOCK_SOURCE_FILES
+add_executable(stock
     src/gl/Error.cpp
     src/gl/Framebuffer.cpp
     src/gl/Mesh.cpp
@@ -19,11 +18,33 @@ set(STOCK_SOURCE_FILES
     src/main.cpp
     )
 
-add_executable(stock ${STOCK_SOURCE_FILES})
+set_target_properties(stock PROPERTIES CXX_STANDARD 11)
 
-# Populate STOCK_INCLUDE_DIRS and STOCK_LIBRARIES.
-include(deps/deps.cmake)
+target_include_directories(stock PRIVATE src)
 
-include_directories(src ${STOCK_INCLUDE_DIRS})
+## GLAD ##
+add_subdirectory(deps/glad)
+target_link_libraries(stock PRIVATE glad)
 
-target_link_libraries(stock ${STOCK_LIBRARIES})
+## GLFW ##
+# Configure GLFW to build only the library.
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
+set(GLFW_INSTALL OFF CACHE BOOL "")
+add_subdirectory(deps/glfw)
+# Disable noisy deprecation warnings within CMake for macOS.
+if(APPLE)
+    target_compile_options(glfw PRIVATE "-Wno-deprecated-declarations")
+endif()
+target_link_libraries(stock PRIVATE glfw ${GLFW_LIBRARIES})
+
+## OpenGL ##
+find_package(OpenGL REQUIRED)
+target_link_libraries(stock PRIVATE ${OPENGL_LIBRARIES})
+
+## GLM ##
+target_include_directories(stock PRIVATE deps/glm)
+
+## STB ##
+target_include_directories(stock PRIVATE deps/stb)
