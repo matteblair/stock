@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 
 project(stock)
 
+add_subdirectory(deps)
+
 add_executable(stock
     src/gl/Error.cpp
     src/gl/Framebuffer.cpp
@@ -16,35 +18,22 @@ add_executable(stock
     src/io/Log.cpp
     src/view/Camera.cpp
     src/main.cpp
-    )
+)
 
-set_target_properties(stock PROPERTIES CXX_STANDARD 11)
+set_target_properties(stock PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED ON
+)
 
-target_include_directories(stock PRIVATE src)
+target_include_directories(stock PRIVATE
+    src
+    deps/glm
+    deps/stb
+)
 
-## GLAD ##
-add_subdirectory(deps/glad)
-target_link_libraries(stock PRIVATE glad)
-
-## GLFW ##
-# Configure GLFW to build only the library.
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
-set(GLFW_INSTALL OFF CACHE BOOL "")
-add_subdirectory(deps/glfw)
-# Disable noisy deprecation warnings within CMake for macOS.
-if(APPLE)
-    target_compile_options(glfw PRIVATE "-Wno-deprecated-declarations")
-endif()
-target_link_libraries(stock PRIVATE glfw ${GLFW_LIBRARIES})
-
-## OpenGL ##
-find_package(OpenGL REQUIRED)
-target_link_libraries(stock PRIVATE ${OPENGL_LIBRARIES})
-
-## GLM ##
-target_include_directories(stock PRIVATE deps/glm)
-
-## STB ##
-target_include_directories(stock PRIVATE deps/stb)
+target_link_libraries(stock PRIVATE
+    glad
+    glfw
+    ${GLFW_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+)
