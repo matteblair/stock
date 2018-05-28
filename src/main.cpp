@@ -78,7 +78,7 @@ int main(void) {
       {1.f, -1.f, -1.f, 0xff00ff00},
       {-1.f, -1.f, 1.f, 0xff0000ff},
   };
-  mesh.indices = {0, 1, 2, 0, 3, 1, 0, 2, 3, 1, 3, 2};
+  mesh.indices = {0, 2, 1, 0, 1, 3, 0, 3, 2, 1, 2, 3};
 
   RenderState rs;
   rs.reset();
