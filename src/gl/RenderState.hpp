@@ -27,7 +27,9 @@ public:
 
   bool blending(GLboolean enable);
 
-  bool blendingFunc(GLenum sfactor, GLenum dfactor);
+  bool blendEquation(GLenum mode);
+
+  bool blendFunc(GLenum sfactor, GLenum dfactor);
 
   bool clearColor(GLclampf r, GLclampf g, GLclampf b, GLclampf a);
 
@@ -50,6 +52,10 @@ public:
   bool stencilOp(GLenum sfail, GLenum spassdfail, GLenum spassdpass);
 
   bool stencilTest(GLboolean enable);
+
+  bool scissor(GLint x, GLint y, GLsizei width, GLsizei height);
+
+  bool scissorTest(GLboolean enable);
 
   bool shaderProgram(GLuint program);
 
@@ -79,12 +85,17 @@ private:
   struct {
     GLboolean enabled;
     bool set;
-  } m_blending, m_culling, m_depthMask, m_depthTest, m_stencilTest;
+  } m_blending, m_culling, m_depthMask, m_depthTest, m_stencilTest, m_scissorTest;
+
+  struct {
+    GLenum mode;
+    bool set;
+  } m_blendEquation;
 
   struct {
     GLenum sfactor, dfactor;
     bool set;
-  } m_blendingFunc;
+  } m_blendFunc;
 
   struct {
     GLuint mask;
@@ -102,6 +113,12 @@ private:
     GLenum sfail, spassdfail, spassdpass;
     bool set;
   } m_stencilOp;
+
+  struct {
+    GLint x, y;
+    GLsizei width, height;
+    bool set;
+  } m_scissor;
 
   struct {
     GLboolean r, g, b, a;

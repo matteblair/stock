@@ -9,7 +9,8 @@ namespace stock {
 void RenderState::reset() {
 
   m_blending.set = false;
-  m_blendingFunc.set = false;
+  m_blendEquation.set = false;
+  m_blendFunc.set = false;
   m_clearColor.set = false;
   m_colorMask.set = false;
   m_cullFace.set = false;
@@ -19,6 +20,8 @@ void RenderState::reset() {
   m_frontFace.set = false;
   m_stencilTest.set = false;
   m_stencilMask.set = false;
+  m_scissorTest.set = false;
+  m_scissor.set = false;
   m_program.set = false;
   m_indexBuffer.set = false;
   m_vertexBuffer.set = false;
@@ -47,9 +50,18 @@ bool RenderState::blending(GLboolean enable) {
   return true;
 }
 
-bool RenderState::blendingFunc(GLenum sfactor, GLenum dfactor) {
-  if (!m_blendingFunc.set || m_blendingFunc.sfactor != sfactor || m_blendingFunc.dfactor != dfactor) {
-    m_blendingFunc = {sfactor, dfactor, true};
+bool RenderState::blendEquation(GLenum mode) {
+  if (!m_blendEquation.set || m_blendEquation.mode != mode) {
+    m_blendEquation = {mode, true};
+    CHECK_GL(glBlendEquation(mode));
+    return false;
+  }
+  return true;
+}
+
+bool RenderState::blendFunc(GLenum sfactor, GLenum dfactor) {
+  if (!m_blendFunc.set || m_blendFunc.sfactor != sfactor || m_blendFunc.dfactor != dfactor) {
+    m_blendFunc = {sfactor, dfactor, true};
     CHECK_GL(glBlendFunc(sfactor, dfactor));
     return false;
   }
@@ -151,6 +163,25 @@ bool RenderState::stencilTest(GLboolean enable) {
   if (!m_stencilTest.set || m_stencilTest.enabled != enable) {
     m_stencilTest = {enable, true};
     setGlFlag(GL_STENCIL_TEST, enable);
+    return false;
+  }
+  return true;
+}
+
+bool RenderState::scissor(GLint x, GLint y, GLsizei width, GLsizei height) {
+  if (!m_scissor.set || x != m_scissor.x || y != m_scissor.y || width != m_scissor.width ||
+      height != m_scissor.height) {
+    m_scissor = {x, y, width, height, true};
+    CHECK_GL(glScissor(x, y, width, height));
+    return false;
+  }
+  return true;
+}
+
+bool RenderState::scissorTest(GLboolean enable) {
+  if (!m_scissorTest.set || m_scissorTest.enabled != enable) {
+    m_scissorTest = {enable, true};
+    setGlFlag(GL_SCISSOR_TEST, enable);
     return false;
   }
   return true;
