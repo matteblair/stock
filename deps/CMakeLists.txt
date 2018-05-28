@@ -15,3 +15,6 @@ endif()
 
 ## OpenGL
 find_package(OpenGL REQUIRED)
+
+## IMGUI
+add_subdirectory(imgui)

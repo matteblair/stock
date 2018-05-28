@@ -5,6 +5,8 @@
 #include "gl/ShaderProgram.hpp"
 #include "view/Camera.hpp"
 #include <GLFW/glfw3.h>
+#include <imgui.h>
+#include <imgui_impl_glfw_gl3.h>
 
 using namespace stock;
 
@@ -52,12 +54,23 @@ int main(void) {
 
   gladLoadGLES2Loader((GLADloadproc)glfwGetProcAddress);
 
+  // Setup ImGui binding
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO(); (void)io;
+  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
+  //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
+  ImGui_ImplGlfwGL3_Init(window, true);
+
+  // Setup style
+  ImGui::StyleColorsDark();
+
   ShaderProgram shader(fs_src, vs_src);
   UniformLocation mvpMatrixLocation("u_mvp");
 
   Mesh<Vertex> mesh;
   mesh.setVertexLayout(VertexLayout({
-      VertexAttribute("a_position", 3, GL_FLOAT, GL_FALSE), VertexAttribute("a_color", 4, GL_UNSIGNED_BYTE, GL_TRUE),
+      VertexAttribute("a_position", 3, GL_FLOAT, GL_FALSE),
+      VertexAttribute("a_color", 4, GL_UNSIGNED_BYTE, GL_TRUE),
   }));
   mesh.vertices = {
       {1.f, 1.f, 1.f, 0xff000000},
@@ -70,7 +83,7 @@ int main(void) {
   RenderState rs;
   rs.reset();
   rs.clearColor(0.f, 0.f, 0.f, 1.f);
-  rs.depthTest(GL_TRUE);
+
 
   Camera camera(1024.f, 768.f, Camera::Options());
   camera.setPosition(0.f, -3.f, 0.f);
@@ -79,8 +92,23 @@ int main(void) {
 
   // Loop until the user closes the window.
   while (!glfwWindowShouldClose(window)) {
+
+    // Poll for and process events.
+    glfwPollEvents();
+    ImGui_ImplGlfwGL3_NewFrame(rs);
+
+    // Create ImGui interface.
+    ImGui::Text("Hello, world!");
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
     // Render here.
     CHECK_GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+    rs.culling(true);
+    rs.cullFace(GL_BACK);
+    rs.depthTest(true);
+    rs.blending(false);
+    rs.scissorTest(false);
 
     static const glm::vec3 point = {0.f, 0.f, 0.f}, axis = {0.f, 0.f, 1.f};
     camera.orbit(point, axis, 0.016f);
@@ -91,15 +119,18 @@ int main(void) {
 
     mesh.draw(rs, shader);
 
+    // Render ImGui interface.
+    ImGui::Render();
+    ImGui_ImplGlfwGL3_RenderDrawData(rs, ImGui::GetDrawData());
+
     // Swap front and back buffers.
     glfwSwapBuffers(window);
-
-    // Poll for and process events.
-    glfwPollEvents();
   }
 
   shader.dispose(rs);
   mesh.dispose(rs);
+
+  ImGui_ImplGlfwGL3_Shutdown(rs);
 
   glfwTerminate();
   return 0;
