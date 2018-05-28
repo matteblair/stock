@@ -43,7 +43,7 @@ void MeshBase::setDrawMode(GLenum drawMode) {
   m_drawMode = drawMode;
 }
 
-void MeshBase::upload(RenderState& rs) {
+void MeshBase::upload(RenderState& rs, GLenum hint) {
 
   if (m_glVertexData && m_vertexCount > 0) {
 
@@ -55,7 +55,7 @@ void MeshBase::upload(RenderState& rs) {
     // Buffer vertex data.
     rs.vertexBuffer(m_glVertexBuffer);
     size_t vertexBytes = m_vertexCount * m_vertexLayout.stride();
-    CHECK_GL(glBufferData(GL_ARRAY_BUFFER, vertexBytes, m_glVertexData, m_hint));
+    CHECK_GL(glBufferData(GL_ARRAY_BUFFER, vertexBytes, m_glVertexData, hint));
   }
 
   if (m_glIndexData && m_indexCount > 0) {
@@ -68,13 +68,17 @@ void MeshBase::upload(RenderState& rs) {
     // Buffer index data.
     rs.indexBuffer(m_glIndexBuffer);
     size_t indexBytes = m_indexCount * sizeof(GLushort);
-    CHECK_GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBytes, m_glIndexData, m_hint));
+    CHECK_GL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBytes, m_glIndexData, hint));
   }
 
   m_isUploaded = true;
 }
 
 bool MeshBase::draw(RenderState& rs, ShaderProgram& shader) {
+  return draw(rs, shader, m_indexCount, 0);
+}
+
+bool MeshBase::draw(RenderState& rs, ShaderProgram& shader, size_t indexCount, const void* indexOffset) {
 
   // Ensure that geometry is buffered into GPU.
   if (!m_isUploaded) {
@@ -103,7 +107,7 @@ bool MeshBase::draw(RenderState& rs, ShaderProgram& shader) {
 
   // Draw as elements or arrays.
   if (m_indexCount > 0) {
-    CHECK_GL(glDrawElements(m_drawMode, m_indexCount, GL_UNSIGNED_SHORT, 0));
+    CHECK_GL(glDrawElements(m_drawMode, indexCount, GL_UNSIGNED_SHORT, indexOffset));
   } else if (m_vertexCount > 0) {
     CHECK_GL(glDrawArrays(m_drawMode, 0, m_vertexCount));
   }

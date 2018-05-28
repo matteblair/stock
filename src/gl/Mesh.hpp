@@ -32,7 +32,7 @@ public:
 
   // Copy all added vertices and indices into OpenGL buffer objects; After
   // geometry is uploaded, no more vertices or indices can be added.
-  virtual void upload(RenderState& rs);
+  virtual void upload(RenderState& rs, GLenum hint = GL_STATIC_DRAW);
 
   // Release all OpenGL resources for this Mesh.
   void dispose(RenderState& rs);
@@ -40,6 +40,8 @@ public:
   // Render the geometry in this mesh using the ShaderProgram _shader; if
   // geometry has not already been uploaded it will be uploaded at this point.
   bool draw(RenderState& rs, ShaderProgram& shader);
+
+  bool draw(RenderState& rs, ShaderProgram& shader, size_t indexCount, const void* indexOffset);
 
   // Get the total size of VRAM in bytes used by this Mesh.
   size_t getTotalBufferSize() const;
@@ -60,7 +62,6 @@ protected:
   GLushort* m_glIndexData = nullptr;
 
   GLenum m_drawMode = GL_TRIANGLES;
-  GLenum m_hint = GL_STATIC_DRAW;
 
   bool m_isUploaded = false;
 };
@@ -72,7 +73,7 @@ public:
   std::vector<uint16_t> indices;
   bool retainData = false;
 
-  virtual void upload(RenderState& rs);
+  virtual void upload(RenderState& rs, GLenum hint = GL_STATIC_DRAW);
   void reset();
 };
 
@@ -82,12 +83,12 @@ template <class T> void Mesh<T>::reset() {
   m_isUploaded = false;
 }
 
-template <class T> void Mesh<T>::upload(RenderState& rs) {
+template <class T> void Mesh<T>::upload(RenderState& rs, GLenum hint) {
   m_glVertexData = reinterpret_cast<GLbyte*>(vertices.data());
   m_vertexCount = vertices.size();
   m_glIndexData = indices.data();
   m_indexCount = indices.size();
-  MeshBase::upload(rs);
+  MeshBase::upload(rs, hint);
   if (!retainData) {
     vertices.clear();
     indices.clear();
