@@ -17,6 +17,7 @@ add_executable(stock
     src/gl/VertexLayout.cpp
     src/io/File.cpp
     src/io/Log.cpp
+    src/transform/Transform.cpp
     src/view/Camera.cpp
     src/main.cpp
     src/ImGuiImpl.cpp

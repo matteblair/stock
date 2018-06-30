@@ -21,7 +21,6 @@ float Camera::height() const {
 void Camera::resize(float width, float height) {
   m_width = width;
   m_height = height;
-  m_dirty = true;
 }
 
 float Camera::fieldOfView() const {
@@ -30,7 +29,6 @@ float Camera::fieldOfView() const {
 
 void Camera::setFieldOfView(float radians) {
   m_options.fov = radians;
-  m_dirty = true;
 }
 
 Camera::Type Camera::projectionType() const {
@@ -39,7 +37,6 @@ Camera::Type Camera::projectionType() const {
 
 void Camera::setProjectionType(Type type) {
   m_options.type = type;
-  m_dirty = true;
 }
 
 float Camera::nearDepth() const {
@@ -48,7 +45,6 @@ float Camera::nearDepth() const {
 
 void Camera::setNearDepth(float near) {
   m_options.near = near;
-  m_dirty = true;
 }
 
 float Camera::farDepth() const {
@@ -57,24 +53,51 @@ float Camera::farDepth() const {
 
 void Camera::setFarDepth(float far) {
   m_options.far = far;
-  m_dirty = true;
 }
 
-const glm::mat4& Camera::viewProjectionMatrix() const {
-  return m_viewProjMatrix;
+glm::mat4 Camera::viewMatrix() const {
+//  auto view = glm::mat4_cast(m_transform.rotation());
+//  return glm::translate(view, m_transform.position());
+
+//  auto translation = glm::translate(position());
+//  auto rotation = glm::mat4_cast(m_transform.rotation());
+//  return rotation * translation;
+
+  auto eye = position();
+  auto center = eye + direction();
+  return glm::lookAt(eye, center, m_up);
 }
 
-const glm::mat3& Camera::normalMatrix() const {
-  return m_normalMatrix;
+glm::mat4 Camera::projectionMatrix() const {
+  float hw = m_width * .5f;
+  float hh = m_height * .5f;
+  switch (m_options.type) {
+  case Type::PERSPECTIVE:
+    return glm::perspectiveFov(m_options.fov, m_width, m_height, m_options.near, m_options.far);
+  case Type::ORTHOGRAPHIC:
+    return glm::ortho(-hw, hw, -hh, hh, m_options.near, m_options.far);
+  default:
+    return glm::mat4(1);
+  }
+}
+
+glm::mat4 Camera::viewProjectionMatrix() const {
+  auto view = viewMatrix();
+  auto proj = projectionMatrix();
+  return proj * view;
+}
+
+glm::mat3 Camera::normalMatrix() const {
+  auto view = viewMatrix();
+  return glm::mat3(view);
 }
 
 const glm::vec3& Camera::position() const {
-  return m_position;
+  return m_transform.position();
 }
 
 void Camera::setPosition(const glm::vec3& position) {
-  m_position = position;
-  m_dirty = true;
+  m_transform.position() = position;
 }
 
 void Camera::setPosition(float x, float y, float z) {
@@ -87,20 +110,18 @@ const glm::vec3& Camera::upVector() const {
 
 void Camera::setUpVector(const glm::vec3& up) {
   m_up = up;
-  m_dirty = true;
 }
 
 void Camera::setUpVector(float x, float y, float z) {
   setUpVector(glm::vec3(x, y, z));
 }
 
-const glm::vec3& Camera::direction() const {
-  return m_direction;
+glm::vec3 Camera::direction() const {
+  return m_transform.getDirection();
 }
 
 void Camera::setDirection(const glm::vec3& direction) {
-  m_direction = direction;
-  m_dirty = true;
+  m_transform.setDirection(direction);
 }
 
 void Camera::setDirection(float x, float y, float z) {
@@ -108,8 +129,7 @@ void Camera::setDirection(float x, float y, float z) {
 }
 
 void Camera::lookAt(const glm::vec3& target) {
-  m_direction = glm::normalize(target - m_position);
-  m_dirty = true;
+  m_transform.lookAt(target);
 }
 
 void Camera::lookAt(float x, float y, float z) {
@@ -125,8 +145,7 @@ void Camera::translate(float x, float y, float z) {
 }
 
 void Camera::rotate(const glm::vec3& axis, float radians) {
-  m_direction = glm::rotate(m_direction, radians, axis);
-  m_dirty = true;
+  glm::rotate(m_transform.rotation(), radians, axis);
 }
 
 void Camera::rotate(float axisX, float axisY, float axisZ, float radians) {
@@ -134,50 +153,14 @@ void Camera::rotate(float axisX, float axisY, float axisZ, float radians) {
 }
 
 void Camera::orbit(const glm::vec3& target, const glm::vec3& axis, float radians) {
-  auto displacement = target - m_position;
-  displacement = glm::rotate(displacement, radians, axis);
-  m_position = target - displacement;
-  m_dirty = true;
+  m_transform.orbit(target, axis, radians);
 }
 
 void Camera::orbit(float tX, float tY, float tZ, float aX, float aY, float aZ, float radians) {
   orbit(glm::vec3(tX, tY, tZ), glm::vec3(aX, aY, aZ), radians);
 }
 
-void Camera::update() {
-
-  if (!m_dirty) {
-    return;
-  }
-
-  // Create view matrix.
-  m_viewMatrix = glm::lookAt(m_position, (m_position + m_direction), m_up);
-
-  // Create projection matrix.
-  float hw = m_width * .5f;
-  float hh = m_height * .5f;
-  switch (m_options.type) {
-  case Type::PERSPECTIVE:
-    m_projMatrix = glm::perspectiveFov(m_options.fov, m_width, m_height, m_options.near, m_options.far);
-    break;
-  case Type::ORTHOGRAPHIC: m_projMatrix = glm::ortho(-hw, hw, -hh, hh, m_options.near, m_options.far); break;
-  }
-
-  // Create combined matrices.
-  m_viewProjMatrix = m_projMatrix * m_viewMatrix;
-  m_invViewProjMatrix = glm::inverse(m_viewProjMatrix);
-
-  // Create normal matrix.
-  m_normalMatrix = glm::mat3(m_viewMatrix);
-  m_invNormalMatrix = glm::inverse(m_normalMatrix);
-
-  // Reset dirty flag.
-  m_dirty = false;
-}
-
 void Camera::apply(ShaderProgram& shader) {
-
-  update();
   // TODO
 }
 

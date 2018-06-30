@@ -3,6 +3,7 @@
 //
 #pragma once
 
+#include "transform/Transform.hpp"
 #include "glm/mat3x3.hpp"
 #include "glm/mat4x4.hpp"
 #include "glm/vec3.hpp"
@@ -44,9 +45,13 @@ public:
   float farDepth() const;
   void setFarDepth(float far);
 
-  const glm::mat4& viewProjectionMatrix() const;
+  glm::mat4 viewMatrix() const;
 
-  const glm::mat3& normalMatrix() const;
+  glm::mat4 projectionMatrix() const;
+
+  glm::mat4 viewProjectionMatrix() const;
+
+  glm::mat3 normalMatrix() const;
 
   const glm::vec3& position() const;
   void setPosition(const glm::vec3& position);
@@ -56,7 +61,7 @@ public:
   void setUpVector(const glm::vec3& up);
   void setUpVector(float x, float y, float z);
 
-  const glm::vec3& direction() const;
+  glm::vec3 direction() const;
   void setDirection(const glm::vec3& direction);
   void setDirection(float x, float y, float z);
 
@@ -72,24 +77,14 @@ public:
   void orbit(const glm::vec3& target, const glm::vec3& axis, float radians);
   void orbit(float tX, float tY, float tZ, float aX, float aY, float aZ, float radians);
 
-  void update();
-
   void apply(ShaderProgram& shader);
 
 private:
-  glm::mat4 m_viewMatrix;
-  glm::mat4 m_projMatrix;
-  glm::mat4 m_viewProjMatrix;
-  glm::mat4 m_invViewProjMatrix;
-  glm::mat3 m_normalMatrix;
-  glm::mat3 m_invNormalMatrix;
-  glm::vec3 m_position;
-  glm::vec3 m_up = {0.f, 0.f, 1.f};
-  glm::vec3 m_direction{0.f, 1.f, 0.f};
+  Transform m_transform;
+  glm::vec3 m_up = Transform::UP;
   Options m_options;
   float m_width = 1.f;
   float m_height = 1.f;
-  bool m_dirty = true;
 };
 
 } // namespace stock

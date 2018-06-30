@@ -90,6 +90,8 @@ int main(void) {
 
   Log::setLevel(Log::Level::VERBOSE);
 
+  bool isPaused = false;
+
   // Loop until the user closes the window.
   while (!glfwWindowShouldClose(window)) {
 
@@ -101,6 +103,8 @@ int main(void) {
     ImGui::Text("Hello, world!");
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
+    ImGui::Checkbox("Pause", &isPaused);
+
     // Render here.
     rs.culling(true);
     rs.cullFace(GL_BACK);
@@ -110,11 +114,22 @@ int main(void) {
 
     CHECK_GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-    static const glm::vec3 point = {0.f, 0.f, 0.f}, axis = {0.f, 0.f, 1.f};
-    camera.orbit(point, axis, 0.016f);
-    camera.lookAt(point);
-    camera.update();
 
+    static const glm::vec3 point = {0.f, 0.f, 0.f}, axis = {0.f, 0.f, 1.f};
+    if (!isPaused) {
+      camera.orbit(point, axis, 0.016f);
+      camera.lookAt(point);
+    }
+
+    // ImGui::ShowDemoWindow();
+
+    if (ImGui::TreeNode("Camera Transform")) {
+      auto position = camera.position();
+      auto direction = camera.direction();
+      ImGui::InputFloat3("Position", &position.x, 4);
+      ImGui::InputFloat3("Direction", &direction.x, 4);
+      ImGui::TreePop();
+    }
     shader.setUniformMatrix4f(rs, mvpMatrixLocation, camera.viewProjectionMatrix());
 
     mesh.draw(rs, shader);
