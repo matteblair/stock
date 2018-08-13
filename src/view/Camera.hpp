@@ -53,29 +53,13 @@ public:
 
   glm::mat3 normalMatrix() const;
 
-  const glm::vec3& position() const;
-  void setPosition(const glm::vec3& position);
-  void setPosition(float x, float y, float z);
+  const Transform& transform() const { return m_transform; }
+  Transform& transform() { return m_transform; }
 
   const glm::vec3& upVector() const;
   void setUpVector(const glm::vec3& up);
-  void setUpVector(float x, float y, float z);
-
-  glm::vec3 direction() const;
-  void setDirection(const glm::vec3& direction);
-  void setDirection(float x, float y, float z);
 
   void lookAt(const glm::vec3& target);
-  void lookAt(float x, float y, float z);
-
-  void translate(const glm::vec3& displacement);
-  void translate(float x, float y, float z);
-
-  void rotate(const glm::vec3& axis, float radians);
-  void rotate(float axisX, float axisY, float axisZ, float radians);
-
-  void orbit(const glm::vec3& target, const glm::vec3& axis, float radians);
-  void orbit(float tX, float tY, float tZ, float aX, float aY, float aZ, float radians);
 
   void apply(ShaderProgram& shader);
 

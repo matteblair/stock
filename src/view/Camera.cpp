@@ -56,16 +56,17 @@ void Camera::setFarDepth(float far) {
 }
 
 glm::mat4 Camera::viewMatrix() const {
-//  auto view = glm::mat4_cast(m_transform.rotation());
-//  return glm::translate(view, m_transform.position());
+  auto matrix = m_transform.getWorldToLocalMatrix();
 
-//  auto translation = glm::translate(position());
-//  auto rotation = glm::mat4_cast(m_transform.rotation());
-//  return rotation * translation;
+  // Change-of-basis into OpenGL view space with right=x, up=y, forward=-z.
+  glm::mat4 R;
+  R[0] = {1.f, 0.f, 0.f, 0.f};
+  R[1] = {0.f, 0.f,-1.f, 0.f};
+  R[2] = {0.f, 1.f, 0.f, 0.f};
+  R[3] = {0.f, 0.f, 0.f, 1.f};
+  auto view = R * matrix;
+  return view;
 
-  auto eye = position();
-  auto center = eye + direction();
-  return glm::lookAt(eye, center, m_up);
 }
 
 glm::mat4 Camera::projectionMatrix() const {
@@ -92,18 +93,6 @@ glm::mat3 Camera::normalMatrix() const {
   return glm::mat3(view);
 }
 
-const glm::vec3& Camera::position() const {
-  return m_transform.position();
-}
-
-void Camera::setPosition(const glm::vec3& position) {
-  m_transform.position() = position;
-}
-
-void Camera::setPosition(float x, float y, float z) {
-  setPosition(glm::vec3(x, y, z));
-}
-
 const glm::vec3& Camera::upVector() const {
   return m_up;
 }
@@ -112,52 +101,8 @@ void Camera::setUpVector(const glm::vec3& up) {
   m_up = up;
 }
 
-void Camera::setUpVector(float x, float y, float z) {
-  setUpVector(glm::vec3(x, y, z));
-}
-
-glm::vec3 Camera::direction() const {
-  return m_transform.getDirection();
-}
-
-void Camera::setDirection(const glm::vec3& direction) {
-  m_transform.setDirection(direction);
-}
-
-void Camera::setDirection(float x, float y, float z) {
-  setDirection(glm::vec3(x, y, z));
-}
-
 void Camera::lookAt(const glm::vec3& target) {
-  m_transform.lookAt(target);
-}
-
-void Camera::lookAt(float x, float y, float z) {
-  lookAt(glm::vec3(x, y, z));
-}
-
-void Camera::translate(const glm::vec3& displacement) {
-  setPosition(position() + displacement);
-}
-
-void Camera::translate(float x, float y, float z) {
-  translate(glm::vec3(x, y, z));
-}
-
-void Camera::rotate(const glm::vec3& axis, float radians) {
-  glm::rotate(m_transform.rotation(), radians, axis);
-}
-
-void Camera::rotate(float axisX, float axisY, float axisZ, float radians) {
-  rotate(glm::vec3(axisX, axisY, axisZ), radians);
-}
-
-void Camera::orbit(const glm::vec3& target, const glm::vec3& axis, float radians) {
-  m_transform.orbit(target, axis, radians);
-}
-
-void Camera::orbit(float tX, float tY, float tZ, float aX, float aY, float aZ, float radians) {
-  orbit(glm::vec3(tX, tY, tZ), glm::vec3(aX, aY, aZ), radians);
+  m_transform.lookAt(target, m_up);
 }
 
 void Camera::apply(ShaderProgram& shader) {
