@@ -86,11 +86,13 @@ int main(void) {
 
 
   Camera camera(1024.f, 768.f, Camera::Options());
-  camera.setPosition(0.f, -3.f, 0.f);
+  camera.transform().position() = { 3.f, 0.f, 0.f };
 
   Log::setLevel(Log::Level::VERBOSE);
 
   bool isPaused = false;
+
+  glm::dvec2 mousePosition;
 
   // Loop until the user closes the window.
   while (!glfwWindowShouldClose(window)) {
@@ -117,15 +119,29 @@ int main(void) {
 
     static const glm::vec3 point = {0.f, 0.f, 0.f}, axis = {0.f, 0.f, 1.f};
     if (!isPaused) {
-      camera.orbit(point, axis, 0.016f);
-      camera.lookAt(point);
+      camera.transform().orbit(point, axis, 0.016f);
+      camera.transform().lookAt(point);
+    }
+
+    glm::dvec2 lastMousePosition = mousePosition;
+    glfwGetCursorPos(window, &mousePosition.x, &mousePosition.y);
+    auto mouseDelta = mousePosition - lastMousePosition;
+    auto mouseDistance = glm::length(mouseDelta);
+    auto mouseScreenVector = (float)mouseDelta.x * Transform::RIGHT - (float)mouseDelta.y * Transform::UP;
+    auto mouseWorldVector = camera.transform().convertLocalVectorToWorld(mouseScreenVector);
+    auto orbitAxis = glm::cross(camera.transform().getDirection(), mouseWorldVector);
+    if (glfwGetMouseButton(window, 0)) {
+      if (glm::abs(mouseDistance) > 0.0001) {
+        camera.transform().orbit(point, orbitAxis, mouseDistance * 0.01);
+        camera.lookAt(point);
+      }
     }
 
     // ImGui::ShowDemoWindow();
 
     if (ImGui::TreeNode("Camera Transform")) {
-      auto position = camera.position();
-      auto direction = camera.direction();
+      auto position = camera.transform().position();
+      auto direction = camera.transform().getDirection();
       ImGui::InputFloat3("Position", &position.x, 4);
       ImGui::InputFloat3("Direction", &direction.x, 4);
       ImGui::TreePop();
