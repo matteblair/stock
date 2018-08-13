@@ -7,5 +7,5 @@ build_script:
   - cmake ..
   - cmake --build .
 artifacts:
-  - path: \build\Debug\stock.exe
+  - path: \build\Debug\app.exe
     name: app
