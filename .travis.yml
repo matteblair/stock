@@ -12,3 +12,4 @@ script:
   - cd build
   - cmake .. -GNinja
   - cmake --build .
+  - ./tests/allTests

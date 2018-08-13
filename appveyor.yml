@@ -6,6 +6,7 @@ build_script:
   - cd build
   - cmake ..
   - cmake --build .
+  - .\tests\Debug\allTests.exe
 artifacts:
   - path: \build\Debug\app.exe
     name: app
