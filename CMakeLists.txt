@@ -72,3 +72,5 @@ set_target_properties(app PROPERTIES
 target_link_libraries(app PRIVATE
     stock
 )
+
+add_subdirectory(tests)
