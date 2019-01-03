@@ -110,16 +110,23 @@ int main(void) {
 
   UrlSession urlSession({});
 
+  std::string elevationDataUrlTemplate = "https://tile.nextzen.org/tilezen/terrain/v1/256/terrarium/%d/%d/%d.png?api_key=";
+  std::string normalDataUrlTemplate = "https://tile.nextzen.org/tilezen/terrain/v1/256/normal/%d/%d/%d.png?api_key=";
+  if (const char* apiKeyEnvVar = getenv("NEXTZEN_API_KEY")) {
+    elevationDataUrlTemplate += apiKeyEnvVar;
+    normalDataUrlTemplate += apiKeyEnvVar;
+  }
+
   app.terrainTiles.reserve(tiles.size()); // Can't reallocate in this loop!
   for (const auto& tile : tiles) {
     app.terrainTiles.emplace_back(tile);
     auto& terrainData = app.terrainTiles.back();
-    auto elevationDataUrl = terrainData.populateUrlTemplate("https://tile.mapzen.com/mapzen/terrain/v1/terrarium/%d/%d/%d.png");
+    auto elevationDataUrl = terrainData.populateUrlTemplate(elevationDataUrlTemplate);
     urlSession.addRequest(elevationDataUrl, [&](UrlSession::Response response) {
       Log::vf("Received elevation URL response! Data length: %d\n", response.data.size());
       terrainData.loadElevationData(response.data);
     });
-    auto normalDataUrl = terrainData.populateUrlTemplate("https://tile.mapzen.com/mapzen/terrain/v1/normal/%d/%d/%d.png");
+    auto normalDataUrl = terrainData.populateUrlTemplate(normalDataUrlTemplate);
     urlSession.addRequest(normalDataUrl, [&](UrlSession::Response response) {
       Log::vf("Received normal URL response! Data length: %d\n", response.data.size());
       terrainData.loadNormalData(response.data);
