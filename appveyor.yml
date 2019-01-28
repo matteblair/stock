@@ -1,4 +1,10 @@
 skip_tags: true
+install:
+  - echo "Downloading conan..."
+  - set PATH=%PATH%;%PYTHON%/Scripts/
+  - pip.exe install conan
+  - conan user # Create the conan data directory
+  - conan --version
 before_build:
   - git submodule update --init
 build_script:
