@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.2)
 
 project(stock)
 
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
 add_subdirectory(deps)
 
 set(STOCK_SOURCES
@@ -62,7 +65,7 @@ target_link_libraries(stock PUBLIC
     ${GLFW_LIBRARIES}
     ${OPENGL_LIBRARIES}
     imgui
-	curl
+    ${CONAN_LIBS}
 )
 
 add_executable(app
