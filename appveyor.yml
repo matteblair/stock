@@ -11,9 +11,9 @@ build_script:
   - mkdir build
   - cd build
   - conan install ..
-  - cmake ..
+  - cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Debug
   - cmake --build .
-  - .\tests\Debug\allTests.exe
+  - .\bin\allTests.exe
 artifacts:
-  - path: \build\Debug\app.exe
+  - path: \build\bin\app.exe
     name: app
