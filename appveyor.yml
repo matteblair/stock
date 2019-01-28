@@ -4,6 +4,7 @@ before_build:
 build_script:
   - mkdir build
   - cd build
+  - conan install ..
   - cmake ..
   - cmake --build .
   - .\tests\Debug\allTests.exe
