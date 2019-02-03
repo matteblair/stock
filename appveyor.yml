@@ -1,19 +1,20 @@
+image: Visual Studio 2017
 skip_tags: true
 install:
-  - echo "Downloading conan..."
-  - set PATH=%PATH%;%PYTHON%/Scripts/
-  - pip.exe install conan
-  - conan user # Create the conan data directory
+  - pip install -q conan
   - conan --version
+  - choco install ninja --limit-output
 before_build:
   - git submodule update --init
 build_script:
   - mkdir build
   - cd build
+  # Set up environment for VS 2017 x64 toolchain (https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=vs-2017)
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
   - conan install ..
-  - cmake .. -G "Visual Studio 14 2015 Win64" -DCMAKE_BUILD_TYPE=Debug
+  - cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release
   - cmake --build .
-  - .\bin\allTests.exe
+  - .\tests\allTests.exe
 artifacts:
-  - path: \build\bin\app.exe
+  - path: \build\app.exe
     name: app
