@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.2)
 
 project(stock)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
 add_subdirectory(deps)
 
 set(STOCK_SOURCES
@@ -65,7 +62,6 @@ target_link_libraries(stock PUBLIC
     ${GLFW_LIBRARIES}
     ${OPENGL_LIBRARIES}
     imgui
-    ${CONAN_LIBS}
 )
 
 add_executable(app
@@ -82,3 +78,16 @@ target_link_libraries(app PRIVATE
 )
 
 add_subdirectory(tests)
+
+if(WIN32)
+    execute_process(COMMAND conan install ${PROJECT_SOURCE_DIR}/conanfile.txt
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        RESULT_VARIABLE CONAN_INSTALL_RESULT
+    )
+    message(STATUS "Conan install result: ${CONAN_INSTALL_RESULT}")
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup(TARGETS)
+    target_link_libraries(stock PUBLIC CONAN_PKG::libcurl)
+else()
+    target_link_libraries(stock PUBLIC curl)
+endif()
