@@ -16,11 +16,6 @@ class UrlSession {
 
 public:
 
-  struct Environment {
-    Environment();
-    ~Environment();
-  };
-
   struct Options {
     uint32_t numberOfThreads = 4;
     uint32_t connectionTimeoutMs = 3000;

@@ -10,17 +10,14 @@
 
 namespace stock {
 
-static uint32_t globalUrlSessionEnvironments = 0;
-
-UrlSession::Environment::Environment() {
-  curl_global_init(CURL_GLOBAL_ALL);
-  globalUrlSessionEnvironments++;
-}
-
-UrlSession::Environment::~Environment() {
-  curl_global_cleanup();
-  globalUrlSessionEnvironments--;
-}
+struct UrlSessionGlobal {
+  UrlSessionGlobal() {
+    curl_global_init(CURL_GLOBAL_ALL);
+  }
+  ~UrlSessionGlobal() {
+    curl_global_cleanup();
+  }
+} urlSessionGlobal;
 
 UrlSession::Response getCanceledResponse() {
   UrlSession::Response response;
@@ -29,7 +26,6 @@ UrlSession::Response getCanceledResponse() {
 }
 
 UrlSession::UrlSession(Options options) : m_options(options) {
-  assert(globalUrlSessionEnvironments > 0);
   assert(options.numberOfThreads > 0);
   // Start the curl threads.
   m_keepRunning = true;

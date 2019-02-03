@@ -34,8 +34,6 @@ struct Vertex {
   unsigned int color;
 };
 
-static UrlSession::Environment urlSessionEnvironment;
-
 int main(void) {
 
   GLFWwindow* window;
