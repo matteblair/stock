@@ -44,6 +44,7 @@ protected:
   UniformLocation m_normalTexLocation;
   UniformLocation m_mvpLocation;
   UniformLocation m_tintLocation;
+  UniformLocation m_scaleLocation;
   uint32_t m_resolution = 0;
   bool m_gridIsOn = false;
   bool m_hullIsOn = true;

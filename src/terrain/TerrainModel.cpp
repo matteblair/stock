@@ -11,12 +11,12 @@ attribute vec2 a_position;
 varying vec2 v_uv;
 uniform mat4 u_mvp;
 uniform sampler2D u_elevationTex;
+uniform float u_elevationScale;
 
 void main() {
     vec4 encoded = texture2D(u_elevationTex, a_position);
     float elevation = (encoded.r * 256. * 256. + encoded.g * 256. + encoded.b) - 32768.;
-    float scale = u_mvp[0][0];
-    vec4 position = vec4(a_position, elevation / scale, 1.);
+    vec4 position = vec4(a_position, elevation / u_elevationScale, 1.);
     v_uv = a_position;
     gl_Position = u_mvp * position;
 }
@@ -42,7 +42,8 @@ TerrainModel::TerrainModel()
       m_elevTexLocation("u_elevationTex"),
       m_normalTexLocation("u_normalTex"),
       m_mvpLocation("u_mvp"),
-      m_tintLocation("u_tint") {
+      m_tintLocation("u_tint"),
+      m_scaleLocation("u_elevationScale") {
   m_mesh.setVertexLayout(VertexLayout({ VertexAttribute("a_position", 2, GL_UNSIGNED_BYTE, GL_TRUE) }));
 }
 
@@ -98,14 +99,18 @@ void TerrainModel::render(RenderState &rs, TerrainData& data, const TileView& vi
     return;
   }
 
+  data.elevationTexture().prepare(rs, 0);
   data.elevationTexture().bind(rs, 0);
   m_shader.setUniformi(rs, m_elevTexLocation, 0);
 
+  data.normalTexture().prepare(rs, 1);
   data.normalTexture().bind(rs, 1);
   m_shader.setUniformi(rs, m_normalTexLocation, 1);
 
   auto mvpMatrix = view.getModelViewProjectionMatrix(data.address());
   m_shader.setUniformMatrix4f(rs, m_mvpLocation, mvpMatrix);
+
+  m_shader.setUniformf(rs, m_scaleLocation, data.address().getSizeMercatorMeters());
 
   if (m_hullIsOn) {
     m_shader.setUniformf(rs, m_tintLocation, glm::vec4(1.f, 1.f, 1.f, 1.f));
