@@ -45,7 +45,7 @@ void onMouseMove(GLFWwindow* window, double xpos, double ypos) {
   bool mouseDown = static_cast<bool>(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT));
   float xNorm = static_cast<float>(xpos) / app->view.camera().width();
   float yNorm = static_cast<float>(ypos) / app->view.camera().height();
-  app->orbit.drag(xNorm, yNorm, mouseDown);
+  //app->orbit.drag(xNorm, yNorm, mouseDown);
 }
 
 void onMouseScroll(GLFWwindow* window, double xoffset, double yoffset) {
@@ -122,12 +122,12 @@ int main(void) {
     app.terrainTiles.emplace_back(tile);
     auto& terrainData = app.terrainTiles.back();
     auto elevationDataUrl = terrainData.populateUrlTemplate(elevationDataUrlTemplate);
-    urlSession.addRequest(elevationDataUrl, [&](UrlSession::Response response) {
+    urlSession.addRequest(elevationDataUrl, [&](UrlSession::Response& response) {
       Log::vf("Received elevation URL response! Data length: %d\n", response.data.size());
       terrainData.loadElevationData(response.data);
     });
     auto normalDataUrl = terrainData.populateUrlTemplate(normalDataUrlTemplate);
-    urlSession.addRequest(normalDataUrl, [&](UrlSession::Response response) {
+    urlSession.addRequest(normalDataUrl, [&](UrlSession::Response& response) {
       Log::vf("Received normal URL response! Data length: %d\n", response.data.size());
       terrainData.loadNormalData(response.data);
     });
@@ -160,11 +160,28 @@ int main(void) {
 
     CHECK_GL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-    app.view.camera().transform().setDirection(app.orbit.getDirection());
+    //app.view.camera().transform().setDirection(app.orbit.getDirection());
     app.view.update();
 
     for (auto& tile : app.terrainTiles) {
       app.model.render(app.rs, tile, app.view);
+    }
+
+    static const glm::vec3 point = {0.f, 0.f, -1.f};
+    glm::dvec2 lastMousePosition = mousePosition;
+    glfwGetCursorPos(window, &mousePosition.x, &mousePosition.y);
+    auto mouseDelta = mousePosition - lastMousePosition;
+    auto mouseDistance = glm::length(mouseDelta);
+    auto mouseScreenVector = (float)mouseDelta.x * Transform::RIGHT - (float)mouseDelta.y * Transform::UP;
+    auto mouseWorldVector = app.view.camera().transform().convertLocalVectorToWorld(mouseScreenVector);
+    auto orbitAxis = glm::cross(app.view.camera().transform().getDirection(), mouseWorldVector);
+    if (glfwGetMouseButton(window, 0)) {
+      if (glm::abs(mouseDistance) > 0.0001) {
+        app.view.camera().transform().orbit(point, orbitAxis, mouseDistance * 0.01);
+        app.view.camera().lookAt(point);
+        auto up = app.view.camera().transform().convertLocalVectorToWorld(Transform::UP);
+        app.view.camera().setUpVector(up);
+      }
     }
 
     // ImGui::ShowDemoWindow();
