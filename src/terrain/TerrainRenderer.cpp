@@ -2,7 +2,7 @@
 // Created by Matt Blair on 12/18/16.
 //
 
-#include "terrain/TerrainModel.hpp"
+#include "terrain/TerrainRenderer.hpp"
 
 namespace stock {
 
@@ -37,7 +37,7 @@ void main() {
 
 #define USE_TRIANGLE_STRIP 1
 
-TerrainModel::TerrainModel()
+TerrainRenderer::TerrainRenderer()
     : m_shader(fs_src, vs_src),
       m_elevTexLocation("u_elevationTex"),
       m_normalTexLocation("u_normalTex"),
@@ -47,7 +47,7 @@ TerrainModel::TerrainModel()
   m_mesh.setVertexLayout(VertexLayout({ VertexAttribute("a_position", 2, GL_UNSIGNED_BYTE, GL_TRUE) }));
 }
 
-void TerrainModel::generateMesh(uint32_t resolution) {
+void TerrainRenderer::generateMesh(uint32_t resolution) {
 
   m_resolution = resolution;
 
@@ -93,7 +93,7 @@ void TerrainModel::generateMesh(uint32_t resolution) {
   #endif
 }
 
-void TerrainModel::render(RenderState &rs, TerrainData& data, const TileView& view) {
+void TerrainRenderer::render(RenderState &rs, TerrainData& data, const TileView& view) {
 
   if (!data.isLoaded()) {
     return;
@@ -134,25 +134,25 @@ void TerrainModel::render(RenderState &rs, TerrainData& data, const TileView& vi
 
 }
 
-void TerrainModel::toggleGrid() {
+void TerrainRenderer::toggleGrid() {
   m_gridIsOn = !m_gridIsOn;
 }
 
-void TerrainModel::toggleHull() {
+void TerrainRenderer::toggleHull() {
   m_hullIsOn = !m_hullIsOn;
 }
 
-uint32_t TerrainModel::increaseResolution() {
+uint32_t TerrainRenderer::increaseResolution() {
   generateMesh(m_resolution * 2);
   return m_resolution;
 }
 
-uint32_t TerrainModel::decreaseResolution() {
+uint32_t TerrainRenderer::decreaseResolution() {
   generateMesh(m_resolution / 2);
   return m_resolution;
 }
 
-void TerrainModel::dispose(RenderState& rs) {
+void TerrainRenderer::dispose(RenderState& rs) {
   m_mesh.dispose(rs);
   m_shader.dispose(rs);
 }

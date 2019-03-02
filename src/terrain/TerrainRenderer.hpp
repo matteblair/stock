@@ -12,7 +12,7 @@
 
 namespace stock {
 
-class TerrainModel {
+class TerrainRenderer {
 
 public:
 
@@ -23,7 +23,7 @@ public:
     coord_t x = 0, y = 0;
   };
 
-  TerrainModel();
+  TerrainRenderer();
 
   void generateMesh(uint32_t resolution);
 

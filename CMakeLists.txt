@@ -43,8 +43,8 @@ set(STOCK_SOURCES
     src/terrain/LngLat.cpp
     src/terrain/TerrainData.hpp
     src/terrain/TerrainData.cpp
-    src/terrain/TerrainModel.hpp
-    src/terrain/TerrainModel.cpp
+    src/terrain/TerrainRenderer.hpp
+    src/terrain/TerrainRenderer.cpp
     src/terrain/TileAddress.hpp
     src/terrain/TileAddress.cpp
     src/terrain/TileView.hpp

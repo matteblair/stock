@@ -7,7 +7,7 @@
 #include "io/UrlSession.hpp"
 #include "view/Camera.hpp"
 #include "view/ViewOrbit.hpp"
-#include "terrain/TerrainModel.hpp"
+#include "terrain/TerrainRenderer.hpp"
 #include "terrain/TileView.hpp"
 #include "ImGuiImpl.hpp"
 #include <GLFW/glfw3.h>
@@ -16,7 +16,7 @@ using namespace stock;
 
 struct AppData {
   RenderState rs;
-  TerrainModel model;
+  TerrainRenderer model;
   TileView view;
   ViewOrbit orbit;
   std::vector<TerrainData> terrainTiles;
