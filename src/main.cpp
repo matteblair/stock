@@ -5,6 +5,8 @@
 #include "gl/RenderState.hpp"
 #include "gl/ShaderProgram.hpp"
 #include "io/UrlSession.hpp"
+#include "jobs/WorkerPool.hpp"
+#include "jobs/JobQueue.hpp"
 #include "view/Camera.hpp"
 #include "view/ViewOrbit.hpp"
 #include "terrain/TerrainRenderer.hpp"
@@ -19,6 +21,7 @@ struct AppData {
   TerrainRenderer model;
   TileView view;
   ViewOrbit orbit;
+  WorkerPool workers {2};
   std::vector<TerrainData> terrainTiles;
 };
 
@@ -124,12 +127,16 @@ int main(void) {
     auto elevationDataUrl = terrainData.populateUrlTemplate(elevationDataUrlTemplate);
     urlSession.addRequest(elevationDataUrl, [&](UrlSession::Response& response) {
       Log::vf("Received elevation URL response! Data length: %d\n", response.data.size());
-      terrainData.loadElevationData(response.data);
+      app.workers.enqueue([&, data = std::move(response.data)]() {
+        terrainData.loadElevationData(data);
+      });
     });
     auto normalDataUrl = terrainData.populateUrlTemplate(normalDataUrlTemplate);
     urlSession.addRequest(normalDataUrl, [&](UrlSession::Response& response) {
       Log::vf("Received normal URL response! Data length: %d\n", response.data.size());
-      terrainData.loadNormalData(response.data);
+      app.workers.enqueue([&, data = std::move(response.data)]() {
+        terrainData.loadNormalData(data);
+      });
     });
   }
 
@@ -216,6 +223,7 @@ int main(void) {
   }
 
   app.model.dispose(app.rs);
+  app.workers.dispose();
 
   for (auto& tile : app.terrainTiles) {
     tile.dispose(app.rs);
