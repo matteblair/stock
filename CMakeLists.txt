@@ -62,7 +62,7 @@ add_library(stock ${STOCK_SOURCES})
 source_group(TREE ${PROJECT_SOURCE_DIR} FILES ${STOCK_SOURCES})
 
 set_target_properties(stock PROPERTIES
-    CXX_STANDARD 11
+    CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
 
@@ -85,7 +85,7 @@ add_executable(app
 )
 
 set_target_properties(app PROPERTIES
-    CXX_STANDARD 11
+    CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
 
