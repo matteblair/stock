@@ -33,6 +33,10 @@ set(STOCK_SOURCES
     src/io/Url.cpp
     src/io/UrlSession.hpp
     src/io/UrlSession.cpp
+    src/jobs/JobQueue.hpp
+    src/jobs/JobQueue.cpp
+    src/jobs/WorkerPool.hpp
+    src/jobs/WorkerPool.cpp
     src/transform/Transform.hpp
     src/transform/Transform.cpp
     src/view/Camera.hpp
