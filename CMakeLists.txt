@@ -5,6 +5,7 @@ project(stock)
 add_subdirectory(deps)
 
 set(STOCK_SOURCES
+    src/containers/VecDeque.hpp
     src/debug/DebugDraw.hpp
     src/debug/DebugDraw.cpp
     src/gl/Error.hpp
