@@ -9,6 +9,14 @@
 
 namespace stock {
 
+/**
+ * A double-ended queue implemented with a growable ring buffer.
+ *
+ * This queue has `O(1)` amortized inserts and removals from both ends. Note that the current implementation does not
+ * construct or destroy objects in `push` or `pop` operations, it only performs assignment.
+ *
+ * @tparam T The contained type.
+ */
 template<typename T>
 class VecDeque {
 
