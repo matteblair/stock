@@ -1,6 +1,7 @@
 add_executable(allTests
     main.cpp
     TransformTests.cpp
+    VecDequeTests.cpp
 )
 
 set_target_properties(allTests PROPERTIES
