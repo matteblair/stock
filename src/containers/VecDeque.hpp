@@ -48,7 +48,11 @@ public:
 
   void push_front(const T& value);
 
+  void push_front(T&& value);
+
   void push_back(const T& value);
+
+  void push_back(T&& value);
 
 protected:
 
@@ -154,9 +158,29 @@ void VecDeque<T>::push_front(const T& value) {
 }
 
 template<typename T>
+void VecDeque<T>::push_front(T&& value) {
+  grow_if_needed();
+  if (m_begin == 0) {
+    m_begin = m_container.size();
+  }
+  m_begin--;
+  m_container[m_begin] = std::move(value);
+}
+
+template<typename T>
 void VecDeque<T>::push_back(const T& value) {
   grow_if_needed();
   m_container[m_end] = value;
+  m_end++;
+  if (m_end == m_container.size()) {
+    m_end = 0;
+  }
+}
+
+template<typename T>
+void VecDeque<T>::push_back(T&& value) {
+  grow_if_needed();
+  m_container[m_end] = std::move(value);
   m_end++;
   if (m_end == m_container.size()) {
     m_end = 0;
