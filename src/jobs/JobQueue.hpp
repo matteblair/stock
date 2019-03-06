@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include "containers/VecDeque.hpp"
 #include <functional>
 #include <mutex>
-#include <queue>
 
 namespace stock {
 
@@ -24,7 +24,7 @@ public:
 
 private:
 
-  std::queue<Job> m_jobs;
+  VecDeque<Job> m_jobs;
 
   std::mutex m_mutex;
 

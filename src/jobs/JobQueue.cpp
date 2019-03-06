@@ -8,7 +8,7 @@ namespace stock {
 
 void JobQueue::enqueue(Job&& job) {
   std::lock_guard<std::mutex> lock(m_mutex);
-  m_jobs.push(std::move(job));
+  m_jobs.push_back(std::move(job));
 }
 
 bool JobQueue::dequeue(Job& job) {
@@ -17,7 +17,7 @@ bool JobQueue::dequeue(Job& job) {
     return false;
   }
   job = std::move(m_jobs.front());
-  m_jobs.pop();
+  m_jobs.pop_front();
   return true;
 }
 
