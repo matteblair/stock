@@ -44,7 +44,7 @@ void onKeyEvent(GLFWwindow* window, int key, int scancode, int action, int mods)
 }
 
 void onMouseMove(GLFWwindow* window, double xpos, double ypos) {
-  AppData* app = reinterpret_cast<AppData*>(glfwGetWindowUserPointer(window));
+  auto* app = reinterpret_cast<AppData*>(glfwGetWindowUserPointer(window));
   bool mouseDown = static_cast<bool>(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT));
   float xNorm = static_cast<float>(xpos) / app->view.camera().width();
   float yNorm = static_cast<float>(ypos) / app->view.camera().height();
@@ -56,7 +56,7 @@ void onMouseScroll(GLFWwindow* window, double xoffset, double yoffset) {
   app->view.setZoom(app->view.zoom() + yoffset / 100.);
 }
 
-int main(void) {
+int main() {
 
   // Create the application data container.
   AppData app{};
