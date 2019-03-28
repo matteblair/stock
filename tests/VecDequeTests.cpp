@@ -102,3 +102,69 @@ TEMPLATE_TEST_CASE("VecDeque returns values in the correct order", TAGS, int, st
   }
 
 }
+
+TEMPLATE_TEST_CASE("VecDeque indexing operator", TAGS, int, std::string) {
+
+  VecDeque<TestType> a;
+
+  const auto input = testValues<TestType>();
+
+  for (const auto& i : input) {
+    a.push_back(i);
+  }
+
+  std::vector<TestType> output;
+
+  for (size_t i = 0; i < input.size(); i++) {
+    output.push_back(a[i]);
+  }
+
+  CHECK(input == output);
+}
+
+TEMPLATE_TEST_CASE("VecDeque copy constructor", TAGS, int, std::string) {
+
+  VecDeque<TestType> a;
+
+  const auto input = testValues<TestType>();
+
+  for (const auto& i : input) {
+    a.push_back(i);
+  }
+
+  VecDeque<TestType> b(a);
+
+  REQUIRE(a.size() == b.size());
+
+  std::vector<TestType> output;
+
+  for (size_t i = 0; i < input.size(); i++) {
+    output.push_back(b[i]);
+  }
+
+  CHECK(input == output);
+}
+
+TEMPLATE_TEST_CASE("VecDeque move constructor", TAGS, int, std::string) {
+
+  VecDeque<TestType> a;
+
+  const auto input = testValues<TestType>();
+
+  for (const auto& i : input) {
+    a.push_back(i);
+  }
+
+  VecDeque<TestType> b(std::move(a));
+
+  REQUIRE(a.size() == 0);
+  REQUIRE(b.size() == input.size());
+
+  std::vector<TestType> output;
+
+  for (size_t i = 0; i < input.size(); i++) {
+    output.push_back(b[i]);
+  }
+
+  CHECK(input == output);
+}

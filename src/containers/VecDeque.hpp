@@ -13,8 +13,7 @@ namespace stock {
 /**
  * A double-ended queue implemented with a growable ring buffer.
  *
- * This queue has `O(1)` amortized inserts and removals from both ends. Note that the current implementation does not
- * construct or destroy objects in `push` or `pop` operations, it only performs assignment.
+ * This queue has `O(1)` amortized inserts and removals from both ends.
  *
  * @tparam T The contained type.
  */
@@ -23,9 +22,25 @@ class VecDeque {
 
 public:
 
+  using this_type = VecDeque<T, Allocator>;
+
   explicit VecDeque(size_t capacity = 0);
 
+  VecDeque(const VecDeque& other);
+
+  VecDeque(VecDeque&& other) noexcept;
+
   ~VecDeque();
+
+  VecDeque& operator=(const this_type& other);
+
+  VecDeque& operator=(this_type&& other) noexcept;
+
+  T& operator[](size_t position);
+
+  const T& operator[](size_t position) const;
+
+  void swap(this_type& other) noexcept;
 
   bool empty() const;
 
@@ -73,9 +88,85 @@ VecDeque<T, Allocator>::VecDeque(size_t capacity) {
   m_buffer = Allocator().allocate(m_capacity);
 }
 
+template <typename T, class Allocator>
+VecDeque<T, Allocator>::VecDeque(const this_type& other) : VecDeque() {
+  *this = other;
+}
+
+template <typename T, class Allocator>
+VecDeque<T, Allocator>::VecDeque(this_type&& other) noexcept : VecDeque() {
+  swap(other);
+}
+
 template<typename T, class Allocator>
 VecDeque<T, Allocator>::~VecDeque() {
+  clear();
   Allocator().deallocate(m_buffer, m_capacity);
+}
+
+template <typename T, class Allocator>
+VecDeque<T, Allocator>& VecDeque<T, Allocator>::operator=(const this_type& other) {
+  clear();
+  m_buffer = Allocator().allocate(other.m_capacity);
+  m_capacity = other.m_capacity;
+  m_begin = other.m_begin;
+  m_end = other.m_end;
+  auto read = m_begin;
+  while (read != m_end) {
+    if (read == m_capacity) {
+      read = 0;
+    } else {
+      new(&m_buffer[read]) T(other.m_buffer[read]);
+      read++;
+    }
+  }
+  return *this;
+}
+
+template <typename T, class Allocator>
+VecDeque<T, Allocator>& VecDeque<T, Allocator>::operator=(this_type&& other) noexcept {
+  swap(other);
+  return *this;
+}
+
+template <typename T, class Allocator> T& VecDeque<T, Allocator>::operator[](size_t position) {
+  assert(size() >= position);
+  auto i = m_begin + position;
+  if (i > m_capacity) {
+    i -= m_capacity;
+  }
+  return m_buffer[i];
+}
+
+template <typename T, class Allocator> const T& VecDeque<T, Allocator>::operator[](size_t position) const {
+  assert(size() >= position);
+  auto i = m_begin + position;
+  if (i > m_capacity) {
+    i -= m_capacity;
+  }
+  return m_buffer[i];
+}
+
+template <typename T, class Allocator>
+void VecDeque<T, Allocator>::swap(this_type& other) noexcept {
+  if (&other == this) {
+    return;
+  }
+
+  const auto t_buffer = other.m_buffer;
+  const auto t_capacity = other.m_capacity;
+  const auto t_begin = other.m_begin;
+  const auto t_end = other.m_end;
+
+  other.m_buffer = m_buffer;
+  other.m_capacity = m_capacity;
+  other.m_begin = m_begin;
+  other.m_end = m_end;
+
+  m_buffer = t_buffer;
+  m_capacity = t_capacity;
+  m_begin = t_begin;
+  m_end = t_end;
 }
 
 template<typename T, class Allocator>
@@ -118,19 +209,19 @@ void VecDeque<T, Allocator>::clear() {
 
 template<typename T, class Allocator>
 T& VecDeque<T, Allocator>::front() {
-  assert(m_begin != m_end);
+  assert(!empty());
   return m_buffer[m_begin];
 }
 
 template<typename T, class Allocator>
 const T& VecDeque<T, Allocator>::front() const {
-  assert(m_begin != m_end);
+  assert(!empty());
   return m_buffer[m_begin];
 }
 
 template<typename T, class Allocator>
 T& VecDeque<T, Allocator>::back() {
-  assert(m_begin != m_end);
+  assert(!empty());
   if (m_end == 0) {
     return m_buffer[m_capacity - 1];
   }
@@ -139,7 +230,7 @@ T& VecDeque<T, Allocator>::back() {
 
 template<typename T, class Allocator>
 const T& VecDeque<T, Allocator>::back() const {
-  assert(m_begin != m_end);
+  assert(!empty());
   if (m_end == 0) {
     return m_buffer[m_capacity - 1];
   }
@@ -148,7 +239,7 @@ const T& VecDeque<T, Allocator>::back() const {
 
 template<typename T, class Allocator>
 void VecDeque<T, Allocator>::pop_front() {
-  assert(m_begin != m_end);
+  assert(!empty());
   if (++m_begin == m_capacity) {
     m_begin = 0;
   }
@@ -156,7 +247,7 @@ void VecDeque<T, Allocator>::pop_front() {
 
 template<typename T, class Allocator>
 void VecDeque<T, Allocator>::pop_back() {
-  assert(m_begin != m_end);
+  assert(!empty());
   if (m_end == 0) {
     m_end = m_capacity;
   }
