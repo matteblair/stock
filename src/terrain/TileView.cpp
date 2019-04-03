@@ -13,6 +13,16 @@ static constexpr double earthRadius = 6378137.0; // meters
 static constexpr double earthCircumference = 2.0 * M_PI * earthRadius;
 static constexpr double earthHalfCircumference = M_PI * earthRadius;
 
+bool rayIntersectionWithGroundPlane(const Camera::Ray& ray, glm::vec2& result, float altitude) {
+  if (ray.direction.z >= 0) {
+    return false;
+  }
+  auto d = (ray.origin.z - altitude) / ray.direction.z;
+  result.x = ray.origin.x + d * ray.direction.x;
+  result.y = ray.origin.y + d * ray.direction.y;
+  return true;
+}
+
 void TileView::setPosition(LngLat position) {
   m_lngLat = position;
   m_isDirty = true;
@@ -48,14 +58,27 @@ void TileView::update() {
   // For now:
   // Find tile in center of viewport.
   auto positionMeters = m_lngLat.toMercatorMeters();
-  auto beginMeters = positionMeters - (glm::dvec2(m_camera.width() / 2., m_camera.height() / 2.) * metersPerPixel);
-  auto endMeters = positionMeters + (glm::dvec2(m_camera.width() / 2., m_camera.height() / 2.) * metersPerPixel);
+
+  // Calculate corners of view frustum intersection with ground plane.
+  glm::vec2 bottomLeft, bottomRight, topLeft, topRight;
+
+  rayIntersectionWithGroundPlane(m_camera.getRayFromViewport(0.f, 0.f), topLeft, altitude);
+  rayIntersectionWithGroundPlane(m_camera.getRayFromViewport(m_camera.width(), 0.f), topRight, altitude);
+  rayIntersectionWithGroundPlane(m_camera.getRayFromViewport(0.f, m_camera.height()), bottomLeft, altitude);
+  rayIntersectionWithGroundPlane(m_camera.getRayFromViewport(m_camera.width(), m_camera.height()), bottomRight, altitude);
+
+  auto beginMeters = positionMeters + glm::dvec2(topLeft);
+  auto endMeters = positionMeters + glm::dvec2(bottomRight);
   auto beginTiles = beginMeters / metersPerTile;
   auto endTiles = endMeters / metersPerTile + 1.;
-  for (double x = beginTiles.x; x < endTiles.x; x += 1.) {
-    for (double y = beginTiles.y; y < endTiles.y; y += 1.) {
-      m_visibleTiles.emplace_back(floor(x), ceil(y), floor(m_zoom));
+  auto tileX = beginTiles.x;
+  while (tileX < endTiles.x) {
+    auto tileY = beginTiles.y;
+    while (tileY < endTiles.y) {
+      m_visibleTiles.emplace_back(floor(tileX), ceil(tileY), floor(m_zoom));
+      tileY += 1.;
     }
+    tileX += 1.;
   }
 
   m_isDirty = false;
