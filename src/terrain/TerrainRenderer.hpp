@@ -34,6 +34,8 @@ public:
   uint32_t increaseResolution();
   uint32_t decreaseResolution();
 
+  glm::vec2& lightOrientation() { return m_lightOrientation; }
+
   void dispose(RenderState& rs);
 
 protected:
@@ -45,6 +47,8 @@ protected:
   UniformLocation m_mvpLocation;
   UniformLocation m_tintLocation;
   UniformLocation m_scaleLocation;
+  UniformLocation m_lightDirectionLocation;
+  glm::vec2 m_lightOrientation = {0.f, 1.57f};
   uint32_t m_resolution = 0;
   bool m_gridIsOn = false;
   bool m_hullIsOn = true;

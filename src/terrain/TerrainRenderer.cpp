@@ -4,6 +4,8 @@
 
 #include "terrain/TerrainRenderer.hpp"
 
+#include "glm/gtx/rotate_vector.hpp"
+
 namespace stock {
 
 const static std::string vs_src = R"SHADER_END(
@@ -14,7 +16,7 @@ uniform sampler2D u_elevationTex;
 uniform float u_elevationScale;
 
 void main() {
-    vec4 encoded = texture2D(u_elevationTex, a_position);
+    vec3 encoded = texture2D(u_elevationTex, a_position).rgb;
     float elevation = (encoded.r * 256. * 256. + encoded.g * 256. + encoded.b) - 32768.;
     vec4 position = vec4(a_position, elevation / u_elevationScale, 1.);
     v_uv = a_position;
@@ -24,13 +26,13 @@ void main() {
 
 const static std::string fs_src = R"SHADER_END(
 varying vec2 v_uv;
+uniform vec3 u_lightDirection;
 uniform vec4 u_tint;
 uniform sampler2D u_normalTex;
-const vec3 lightDirection = vec3(.5, .5, -.5);
 
 void main() {
-    vec4 normal = texture2D(u_normalTex, v_uv);
-    float brightness = .5 + dot(normal.xyz, lightDirection);
+    vec3 normal = texture2D(u_normalTex, v_uv).rgb * 2. - 1.;
+    float brightness = .5 + .5 * dot(normal, u_lightDirection);
     gl_FragColor = u_tint * vec4(vec3(brightness), 1.);
 }
 )SHADER_END";
@@ -43,7 +45,8 @@ TerrainRenderer::TerrainRenderer()
       m_normalTexLocation("u_normalTex"),
       m_mvpLocation("u_mvp"),
       m_tintLocation("u_tint"),
-      m_scaleLocation("u_elevationScale") {
+      m_scaleLocation("u_elevationScale"),
+      m_lightDirectionLocation("u_lightDirection") {
   m_mesh.setVertexLayout(VertexLayout({ VertexAttribute("a_position", 2, GL_UNSIGNED_BYTE, GL_TRUE) }));
 }
 
@@ -111,6 +114,9 @@ void TerrainRenderer::render(RenderState &rs, TerrainData& data, const TileView&
   m_shader.setUniformMatrix4f(rs, m_mvpLocation, mvpMatrix);
 
   m_shader.setUniformf(rs, m_scaleLocation, data.address().getSizeMercatorMeters());
+
+  glm::vec3 lightDirection = glm::rotateY(glm::rotateX(glm::vec3(0.f, 0.f, -1.f), m_lightOrientation.x), m_lightOrientation.y);
+  m_shader.setUniformf(rs, m_lightDirectionLocation, lightDirection);
 
   if (m_hullIsOn) {
     m_shader.setUniformf(rs, m_tintLocation, glm::vec4(1.f, 1.f, 1.f, 1.f));

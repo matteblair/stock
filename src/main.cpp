@@ -183,7 +183,7 @@ int main() {
     auto mouseWorldVector = app.view.camera().transform().convertLocalVectorToWorld(mouseScreenVector);
     auto orbitAxis = glm::cross(app.view.camera().transform().getDirection(), mouseWorldVector);
     if (glfwGetMouseButton(window, 0)) {
-      if (glm::abs(mouseDistance) > 0.0001) {
+      if (glm::abs(mouseDistance) > 0.0001 && !ImGui::GetIO().WantCaptureMouse) {
         app.view.camera().transform().orbit(point, orbitAxis, mouseDistance * 0.01);
         app.view.camera().lookAt(point);
         auto up = app.view.camera().transform().convertLocalVectorToWorld(Transform::UP);
@@ -198,6 +198,13 @@ int main() {
       auto direction = app.view.camera().transform().getDirection();
       ImGui::InputFloat3("Position", &position.x, 4);
       ImGui::InputFloat3("Direction", &direction.x, 4);
+      ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("Light Orientation")) {
+      auto& orientation = app.model.lightOrientation();
+      ImGui::SliderAngle("X", &orientation.x, -90.f, 90.f);
+      ImGui::SliderAngle("Y", &orientation.y, -180.f, 180.f);
       ImGui::TreePop();
     }
 
