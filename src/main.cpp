@@ -113,7 +113,7 @@ int main() {
 
   UrlSession urlSession({});
 
-  std::string elevationDataUrlTemplate = "https://tile.nextzen.org/tilezen/terrain/v1/256/terrarium/%d/%d/%d.png?api_key=";
+  std::string elevationDataUrlTemplate = "https://tile.nextzen.org/tilezen/terrain/v1/260/terrarium/%d/%d/%d.png?api_key=";
   std::string normalDataUrlTemplate = "https://tile.nextzen.org/tilezen/terrain/v1/256/normal/%d/%d/%d.png?api_key=";
   if (const char* apiKeyEnvVar = getenv("NEXTZEN_API_KEY")) {
     elevationDataUrlTemplate += apiKeyEnvVar;
@@ -202,17 +202,17 @@ int main() {
     }
 
     DebugDraw::cameraMatrix(app.view.camera().viewProjectionMatrix());
-    DebugDraw::point(app.rs, {1.f, 0.f, 0.f});
-    DebugDraw::point(app.rs, {0.f, 1.f, 0.f});
-    DebugDraw::point(app.rs, {0.f, 0.f, 1.f});
-
-    DebugDraw::linestring(app.rs, {
-      { 1.f, -1.f, -1.f},
-      { 1.f,  1.f, -1.f},
-      {-1.f,  1.f, -1.f},
-      {-1.f, -1.f, -1.f},
-      { 1.f, -1.f, -1.f},
-    });
+//    DebugDraw::point(app.rs, {1.f, 0.f, 0.f});
+//    DebugDraw::point(app.rs, {0.f, 1.f, 0.f});
+//    DebugDraw::point(app.rs, {0.f, 0.f, 1.f});
+//
+//    DebugDraw::linestring(app.rs, {
+//      { 1.f, -1.f, -1.f},
+//      { 1.f,  1.f, -1.f},
+//      {-1.f,  1.f, -1.f},
+//      {-1.f, -1.f, -1.f},
+//      { 1.f, -1.f, -1.f},
+//    });
 
     // Render ImGui interface.
     ImGui::Render();

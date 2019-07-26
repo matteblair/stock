@@ -14,7 +14,8 @@ uniform sampler2D u_elevationTex;
 uniform float u_elevationScale;
 
 void main() {
-    vec4 encoded = texture2D(u_elevationTex, a_position);
+    vec2 elevation_uv = a_position * (256. / 260.) + (1. / 260.);
+    vec4 encoded = texture2D(u_elevationTex, elevation_uv);
     float elevation = (encoded.r * 256. * 256. + encoded.g * 256. + encoded.b) - 32768.;
     vec4 position = vec4(a_position, elevation / u_elevationScale, 1.);
     v_uv = a_position;
