@@ -243,6 +243,7 @@ const T& VecDeque<T, Allocator>::back() const {
 template<typename T, class Allocator>
 void VecDeque<T, Allocator>::pop_front() {
   assert(!empty());
+  m_buffer[m_begin].~T();
   if (++m_begin == m_capacity) {
     m_begin = 0;
   }
@@ -255,6 +256,7 @@ void VecDeque<T, Allocator>::pop_back() {
     m_end = m_capacity;
   }
   m_end--;
+  m_buffer[m_end].~T();
 }
 
 template<typename T, class Allocator>
