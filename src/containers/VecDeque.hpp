@@ -106,6 +106,9 @@ VecDeque<T, Allocator>::~VecDeque() {
 
 template <typename T, class Allocator>
 VecDeque<T, Allocator>& VecDeque<T, Allocator>::operator=(const this_type& other) {
+  if (&other == this) {
+    return *this;
+  }
   clear();
   m_buffer = Allocator().allocate(other.m_capacity);
   m_capacity = other.m_capacity;

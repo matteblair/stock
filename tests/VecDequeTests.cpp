@@ -145,6 +145,27 @@ TEMPLATE_TEST_CASE("VecDeque copy constructor", TAGS, int, std::string) {
   CHECK(input == output);
 }
 
+TEMPLATE_TEST_CASE("VecDeque self-assignment", TAGS, int, std::string) {
+
+  VecDeque<TestType> a;
+
+  const auto input = testValues<TestType>();
+
+  for (const auto& i : input) {
+    a.push_back(i);
+  }
+
+  a = a;
+
+  std::vector<TestType> output;
+
+  for (size_t i = 0; i < a.size(); i++) {
+    output.push_back(a[i]);
+  }
+
+  CHECK(input == output);
+}
+
 TEMPLATE_TEST_CASE("VecDeque move constructor", TAGS, int, std::string) {
 
   VecDeque<TestType> a;
