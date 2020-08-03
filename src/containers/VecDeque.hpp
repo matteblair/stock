@@ -110,8 +110,11 @@ VecDeque<T, Allocator>& VecDeque<T, Allocator>::operator=(const this_type& other
     return *this;
   }
   clear();
-  m_buffer = Allocator().allocate(other.m_capacity);
-  m_capacity = other.m_capacity;
+  if (m_capacity != other.m_capacity) {
+    Allocator().deallocate(m_buffer, m_capacity);
+    m_buffer = Allocator().allocate(other.m_capacity);
+    m_capacity = other.m_capacity;
+  }
   m_begin = other.m_begin;
   m_end = other.m_end;
   auto read = m_begin;
